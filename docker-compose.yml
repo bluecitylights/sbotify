@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  mcp:
+    build:
+      context: ./mcp
+      dockerfile: Dockerfile
+    command: python app.py
+    volumes:
+      - ./mcp:/app
+    ports:
+      - "8000:8000"
+    develop:
+      watch:
+        - action: sync
+          path: ./mcp/app.py
+          target: /app/app.py
+          ignore:
+            - .git/
+    env_file:
+      - .env
+
+  # bff:
+  #   build:
+  #     context: ./bff
+  #     dockerfile: Dockerfile
+  #   command: node server.js
+  #   volumes:
+  #     - ./bff:/app
+  #   ports:
+  #     - "3000:3000"
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: ./bff/server.js
+  #         target: /app/server.js
+  #         ignore:
+  #           - .git/
+  #   env_file:
+  #     - .env
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   command: python -m http.server 8080
+  #   volumes:
+  #     - ./frontend:/app
+  #   ports:
+  #     - "8080:8080"
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: ./frontend/index.html
+  #         target: /app/index.html
+  #         ignore:
+  #           - .git/
+  #   env_file:
+  #     - .env

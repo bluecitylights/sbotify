@@ -1,0 +1,17 @@
+{
+  "name": "Full-Stack Monorepo",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "mcp",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-vscode.js-debug-nightly",
+        "dbaeumer.vscode-eslint",
+        "ms-vscode-remote.remote-containers"
+      ]
+    }
+  }
+}
