@@ -1,0 +1,26 @@
+services:
+  mcp-server:
+    build:
+      context: .
+      dockerfile: ./mcp-server/Dockerfile
+    container_name: mcp-server
+    command: uv run server.py
+    volumes:
+      - ./mcp:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  mcp-client:
+    build:
+      context: .
+      dockerfile: ./mcp-client/Dockerfile
+    container_name: mcp-client
+    depends_on:
+      - mcp-server
+    volumes:
+      - ./mcp-client:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["uv", "run", "python", "client.py"]
