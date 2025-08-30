@@ -1,0 +1,12 @@
+[project]
+name = "sbotify"
+version = "0.1.0"
+# All your project-wide dependencies go here
+dependencies = [
+    "fastmcp",
+]
+
+[tool.uv.workspace]
+members = [
+    "mcp-server"
+]

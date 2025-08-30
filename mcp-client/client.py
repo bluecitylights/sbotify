@@ -3,7 +3,7 @@ from fastmcp import Client
 
 async def main():
     # Connect to the MCP server we just created
-    async with Client("server.py") as client:
+    async with Client("mcp-server/server.py") as client:
         
         # tools = await client.list_tools()
         # print("Generated Tools:")
