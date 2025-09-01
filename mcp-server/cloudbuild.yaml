@@ -13,14 +13,14 @@ steps:
   - --image
   - '${_AR_REPO_URL}/$_IMAGE_NAME'
   - --region
-  - ${_REGION}
+  - 'europe-west4'
   
 images:
 - '${_AR_REPO_URL}/$_IMAGE_NAME'
 
 substitutions:
   _IMAGE_NAME: 'mcp-server:${SHORT_SHA}'
-  _AR_REPO_URL: '${REGION}-docker.pkg.dev/${PROJECT_ID}/sbotify'
+  _AR_REPO_URL: 'europe-west4-docker.pkg.dev/${PROJECT_ID}/sbotify'
   _REGION: 'europe-west4'
 
 options:
