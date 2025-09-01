@@ -1,0 +1,22 @@
+services:
+  mcp-server:
+    build:
+      context: ./mcp-server
+      dockerfile: Dockerfile
+    container_name: mcp-server
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  # mcp-client:
+  #   build:
+  #     context: mcp-client
+  #     dockerfile: Dockerfile
+  #   container_name: mcp-client
+  #   depends_on:
+  #     - mcp-server
+  #   environment:
+  #     - PYTHONUNBUFFERED=1
+  #     - MCP_SERVER_URL=http://mcp-server:8000
+  #   command: ["python", "client.py"]

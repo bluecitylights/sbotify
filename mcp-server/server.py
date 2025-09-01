@@ -1,6 +1,7 @@
 from fastmcp import FastMCP
 
-mcp = FastMCP("My MCP Server")
+mcp = FastMCP("Sbotify MCP Server")
+print("Sbotify MCP Server created.")
 
 @mcp.tool
 def add(a: int, b: int) -> int:
@@ -24,5 +25,5 @@ def analyze_data(data_points: list[float]) -> str:
     return f"Please analyze these data points: {formatted_data}"
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(transport="http", host="0.0.0.0", port=8000)
 
