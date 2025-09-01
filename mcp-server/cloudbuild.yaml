@@ -9,7 +9,7 @@ steps:
   - gcloud
   - run
   - deploy
-  - sbotyif-mcp-server 
+  - sbotify-mcp-server 
   - --image
   - '$_IMAGE_NAME'
   - --region
