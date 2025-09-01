@@ -18,10 +18,8 @@ steps:
 images:
 - '$_IMAGE_NAME'
 
-# The 'substitutions' block goes here at the top level
 substitutions:
   _IMAGE_NAME: 'gcr.io/${PROJECT_ID}/mcp-server:${SHORT_SHA}'
 
 options:
-  # The 'options' block is for things like logging
   logging: CLOUD_LOGGING_ONLY
