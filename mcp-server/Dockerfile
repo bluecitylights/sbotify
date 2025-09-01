@@ -4,7 +4,7 @@ FROM python:3.13-slim
 # Set the working directory inside the container.
 WORKDIR /app
 
-COPY pyroject.toml .
+COPY pyproject.toml .
 COPY uv.lock .
 
 # Install the dependencies from the shared lock file.
