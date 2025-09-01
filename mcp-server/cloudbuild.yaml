@@ -4,7 +4,8 @@ steps:
   args: ['build', '-t', '$_IMAGE_NAME', 'mcp-server']
   
 # Step 2: Deploy the image to Cloud Run
-- name: 'gcr.io/google.com/cloudsdk/cloud-sdk'
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
   args:
   - gcloud
   - run
@@ -14,7 +15,6 @@ steps:
   - '$_IMAGE_NAME'
   - --region
   - europe-west4
-  - --allow-unauthenticated
 
 images:
 - '$_IMAGE_NAME'
