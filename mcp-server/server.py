@@ -1,6 +1,7 @@
 from fastmcp import FastMCP
 
 mcp = FastMCP("Sbotify MCP Server")
+print("Sbotify MCP Server created.")
 
 @mcp.tool
 def add(a: int, b: int) -> int:
