@@ -1,9 +1,13 @@
 steps:
-# Step 1: Build and push the Docker image
+# Build and push the Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'europe-west4-docker.pkg.dev/${PROJECT_ID}/sbotify/mcp-server:${SHORT_SHA}', 'mcp-server']
 
-# Step 2: Deploy the image to Cloud Run
+# Deploy the image to Cloud Run
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'europe-west4-docker.pkg.dev/${PROJECT_ID}/sbotify/mcp-server:${SHORT_SHA}']
+
+# Deploy the image to Cloud Run
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
   args:
