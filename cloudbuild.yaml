@@ -1,0 +1,53 @@
+# The `steps` field is a list of build steps. Each step runs a command.
+steps:
+  # This step builds the mcp-server image.
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/mcp-server:$COMMIT_SHA'  # Use a unique tag for the image
+      - '-f'
+      - './mcp-server/Dockerfile'  # Specify the path to the Dockerfile
+      - '.'  # The build context is the root of the repository
+    # The `id` field is a unique identifier for this step.
+    id: 'build-mcp-server'
+
+  # This step pushes the mcp-server image to Google Container Registry.
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/mcp-server:$COMMIT_SHA'
+    id: 'push-mcp-server'
+    # The `waitFor` field ensures this step only runs after the build step is complete.
+    waitFor: ['build-mcp-server']
+
+  # This step builds the mcp-client image.
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/mcp-client:$COMMIT_SHA'
+      - '-f'
+      - './mcp-client/Dockerfile'
+      - '.'
+    id: 'build-mcp-client'
+
+  # This step pushes the mcp-client image to Google Container Registry.
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/mcp-client:$COMMIT_SHA'
+    id: 'push-mcp-client'
+    waitFor: ['build-mcp-client']
+
+# The `options` field contains global options for the build.
+options:
+  # This option sends build logs directly to Cloud Logging,
+  # resolving the service account permission error you encountered.
+  logging: CLOUD_LOGGING_ONLY
+
+# The `images` field lists the container images to be pushed after the build is complete.
+# This is a more explicit way to ensure the images are pushed.
+images:
+  - 'gcr.io/$PROJECT_ID/mcp-server:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/mcp-client:$COMMIT_SHA'
