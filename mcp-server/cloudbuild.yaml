@@ -9,7 +9,7 @@ steps:
   - gcloud
   - run
   - deploy
-  - sbotify-mcp-server 
+  - sbotyif-mcp-server 
   - --image
   - '$_IMAGE_NAME'
   - --region
@@ -19,7 +19,10 @@ steps:
 images:
 - '$_IMAGE_NAME'
 
+# The 'substitutions' block goes here at the top level
+substitutions:
+  _IMAGE_NAME: 'gcr.io/${PROJECT_ID}/mcp-server:${SHORT_SHA}'
+
 options:
-  # This section defines your custom variables
-  substitutions:
-    _IMAGE_NAME: 'gcr.io/${PROJECT_ID}/mcp-server:${SHORT_SHA}'
+  # The 'options' block is for things like logging
+  logging: CLOUD_LOGGING_ONLY
