@@ -3,18 +3,18 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', '$_IMAGE_NAME', 'mcp-server']
   
-# # Step 2: Deploy the image to Cloud Run
-# - name: 'gcr.io/google.com/cloudsdk/cloud-sdk'
-#   args:
-#   - gcloud
-#   - run
-#   - deploy
-#   - sbotyif-mcp-server 
-#   - --image
-#   - '$_IMAGE_NAME'
-#   - --region
-#   - europe-west4
-#   - --allow-unauthenticated
+# Step 2: Deploy the image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdk/cloud-sdk'
+  args:
+  - gcloud
+  - run
+  - deploy
+  - sbotyif-mcp-server 
+  - --image
+  - '$_IMAGE_NAME'
+  - --region
+  - europe-west4
+  - --allow-unauthenticated
 
 images:
 - '$_IMAGE_NAME'
