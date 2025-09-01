@@ -3,7 +3,7 @@ import os
 import sys
 from fastmcp import Client
 
-MCP_SERVER_URL = os.environ.get("MCP_SERVER_URL", "http://localhost:8000")
+MCP_SERVER_URL = os.environ.get("MCP_SERVER_URL", "http://localhost:8000/mcp")
 print(MCP_SERVER_URL)
 client = Client(MCP_SERVER_URL)
 print("Client initialized.")
