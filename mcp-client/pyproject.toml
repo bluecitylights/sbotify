@@ -1,3 +1,6 @@
 [project]
 name = "mcp-client"
 version = "0.1.0"
+dependencies = [
+    "fastmcp",
+]

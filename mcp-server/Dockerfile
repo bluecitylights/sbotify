@@ -2,15 +2,9 @@
 FROM python:3.13-slim
 
 # Set the working directory inside the container.
-WORKDIR /app/mcp-server
+WORKDIR /app
 
-# Copy the uvlock file from the root of the build context.
-# We also copy the requirements file to prepare for installation.
-COPY pyproject.toml ./
-COPY uvlock .
-
-# Copy the server-specific application files.
-COPY ./mcp-server .
+COPY . .
 
 # Install the dependencies from the shared lock file.
 RUN pip install uv uvicorn
