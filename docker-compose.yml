@@ -1,7 +1,8 @@
 services:
   mcp-server:
     build:
-      context: ./mcp-server
+      context: .
+      dockerfile: ./mcp-server/Dockerfile
     container_name: mcp-server
     ports:
       - "8000:8000"
@@ -10,7 +11,8 @@ services:
 
   mcp-client:
     build:
-      context: ./mcp-client
+      context: .
+      dockerfile: mcp-client/Dockerfile
     container_name: mcp-client
     depends_on:
       - mcp-server

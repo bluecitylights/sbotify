@@ -2,16 +2,21 @@
 FROM python:3.13-slim
 
 # Set the working directory inside the container.
-WORKDIR /app
+WORKDIR /app/mcp-server
 
-# Copy the contents of the build context (which is ./mcp-server)
-# into the /app directory inside the container.
-COPY . .
+# Copy the uvlock file from the root of the build context.
+# We also copy the requirements file to prepare for installation.
+COPY pyproject.toml ./
+COPY uvlock .
 
-# Install the necessary Python dependencies.
-RUN pip install fastmcp uvicorn
+# Copy the server-specific application files.
+COPY ./mcp-server .
 
-# Expose the port that the fastmcp server will run on.
+# Install the dependencies from the shared lock file.
+RUN pip install uv uvicorn
+RUN uv sync
+
+# Expose the port that the FastAPI server will run on.
 EXPOSE 8000
 
 # The command to run the application using uvicorn.
