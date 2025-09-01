@@ -4,16 +4,15 @@ FROM python:3.13-slim
 # Set the working directory inside the container.
 WORKDIR /app
 
-COPY . .
+COPY pyroject.toml .
+COPY uv.lock .
 
 # Install the dependencies from the shared lock file.
-RUN pip install uv uvicorn
+RUN pip install uv
 RUN uv sync
 
+COPY . .
 # Expose the port that the FastAPI server will run on.
 EXPOSE 8000
 
-# The command to run the application using uvicorn.
-# `server:mcp` tells uvicorn to look for a file named `server.py` and an application
-# instance named `mcp` inside it.
-CMD ["uvicorn", "server:mcp", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "server.py"]
