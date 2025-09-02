@@ -23,3 +23,12 @@ gcloud run services proxy sbotify-mcp-server --region=europe-west4
 ```
 
 All traffic to http://127.0.0.1:8080 will now be authenticated and forwarded to our remote MCP server.
+
+
+
+
+# Chat-BE
+
+```bash
+uvicorn src.backend.main:app --reload
+```
