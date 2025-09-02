@@ -1,0 +1,13 @@
+/* * This file contains all the custom CSS for the chat frontend.
+
+Separating styles from the HTML makes the project more organized and easier to maintain.
+*/
+
+body {
+font-family: 'Inter', sans-serif;
+}
+
+/* Add a custom style for the input placeholder text */
+input::placeholder {
+color: #a0aec0;
+}
