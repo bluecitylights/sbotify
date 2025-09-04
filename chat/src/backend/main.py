@@ -1,43 +1,59 @@
-# A simple FastAPI application to act as a Backend for Frontend (BFF).
-# To run this file, you'll need to install FastAPI and a server like Uvicorn:
-# uv add fastapi uvicorn google-generativeai
-
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse, FileResponse
 from pathlib import Path
-import google.generativeai as genai
+from google import genai
+from fastmcp import Client
 
-# Load environment variables. Uvicorn will automatically handle this
-# if you run it with the --env-file flag, e.g.:
-# uvicorn bff_app:app --reload --env-file example.env
+# Load environment variables
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     raise ValueError("GEMINI_API_KEY environment variable not set.")
 
-# Configure the Gemini API client
-genai.configure(api_key=api_key)
+gemini_client = genai.Client(api_key=api_key)
 
-app = FastAPI()
+async def lifespan(app: FastAPI):
+    # This block runs at application startup
+    print("Initializing FastMCP client...")
+    
+    async with Client(os.getenv("MCP_SERVER_URL", "http://localhost:8000")) as mcp_client:
+        app.state.mcp_client = mcp_client
+        print("FastMCP client session is ready.")
+        tools = await mcp_client.list_tools()
+        print("Available tools:", [tool.name for tool in tools])  
+        
+        yield
+        
+        print("FastMCP client session closed.")
 
-fe_path = Path(__file__).parent.parent.parent / "src" / "index.html"
+app = FastAPI(lifespan=lifespan)
 
-# An async function to get a response from the Gemini model
+fe_path = Path(__file__).parent.parent.parent / "src" / "frontend" / "index.html"
+
 async def generate_gemini_response(prompt: str) -> str:
     """
-    Generates a response from the Gemini model based on the user's prompt.
+    Generates a response from the Gemini model using the FastMCP client's session.
     """
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = await model.generate_content_async(prompt)
-        # Ensure the response is not empty before returning
-        if response and response.text:
+        mcp_client = app.state.mcp_client
+        async with mcp_client:
+            response = await gemini_client.aio.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt,
+                config=genai.types.GenerateContentConfig(
+                    temperature=0,
+                    tools=[mcp_client.session],
+                ),
+
+            )
+
             return response.text
-        else:
-            return "No response received from the AI."
+        
     except Exception as e:
-        print(f"Error calling the Gemini API: {e}")
+        print(f"Error calling the Gemini API with FastMCP: {e}")
         return "Sorry, I am unable to generate a response at this time."
+
 
 @app.get("/")
 async def serve_frontend():
@@ -47,7 +63,6 @@ async def serve_frontend():
 async def chat_response(prompt: str = Form(...)):
     llm_response = await generate_gemini_response(prompt)
     
-    # Return the HTML fragment that HTMX will swap into the page.
     return HTMLResponse(f"""
         <div class="flex justify-end">
             <div class="chat-bubble user-bubble">
@@ -60,6 +75,3 @@ async def chat_response(prompt: str = Form(...)):
             </div>
         </div>
     """)
-
-# To run the server, use the command:
-# uvicorn bff_app:app --reload --env-file example.env
