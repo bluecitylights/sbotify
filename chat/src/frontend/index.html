@@ -199,7 +199,7 @@
         <!-- Available Tools Container -->
         <div class="tools-list-container">
             <div class="tools-header">Available Tools:</div>
-            <div id="tools-list" hx-get="/api/tools" hx-trigger="load">
+            <div id="tools-list" hx-get="/ui/tools" hx-trigger="load">
                 <!-- Tools will be loaded here via HTMX -->
             </div>
         </div>
@@ -216,7 +216,7 @@
         <!-- Chat Input Form -->
         <form class="chat-form"
               id="chat-form"
-              hx-post="/api/chat"
+              hx-post="/ui/chat"
               hx-target="#chat-messages"
               hx-swap="beforeend"
               hx-indicator=".loading-indicator"
