@@ -149,14 +149,25 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-        .tool-badge {
-            background-color: #e0e7ff;
-            color: #3b82f6;
-            padding: 0.25rem 0.75rem;
+        .tool-badge, .resource-badge, .prompt-badge {
+            padding: 4px 8px;
             border-radius: 9999px;
+            color: white;
+            font-weight: bold;
             font-size: 0.875rem;
-            font-weight: 500;
+            white-space: nowrap;
+            cursor: default;
         }
+        .tool-badge {
+            background-color: #3b82f6;
+        }
+        .resource-badge {
+            background-color: #10b981;
+        }
+        .prompt-badge {
+            background-color: #f97316;
+        }
+
         .tools-list-container {
             padding: 1rem;
             background-color: #f9fafb;

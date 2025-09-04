@@ -2,49 +2,47 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import HTMLResponse
 from fastmcp import Client
 from ..dependencies import get_mcp_client
+import asyncio
 
 router = APIRouter()
 
 @router.get("/tools")
-async def get_available_tools(mcp_client: Client = Depends(get_mcp_client)):
+async def get_available_resources(mcp_client: Client = Depends(get_mcp_client)):
     """
     Fetches and returns a list of available tools, resources, and prompts from the MCP server.
     """
     try:
-        # Fetch all three types of objects
-        tools = await mcp_client.list_tools()
-        resources = await mcp_client.list_resources()
-        prompts = await mcp_client.list_prompts()
+        # Fetch all three types of objects concurrently
+        tools_list, resources_list, prompts_list = await asyncio.gather(
+            mcp_client.list_tools(),
+            mcp_client.list_resources(),
+            mcp_client.list_prompts()
+        )
         
-        tool_names = [tool.name for tool in tools]
-        resource_names = [resource.name for resource in resources]
-        prompt_names = [prompt.name for prompt in prompts]
-        
-        # Build the HTML content
         html_content = ""
-        
-        if tool_names:
-            html_content += "<h4>Tools:</h4>"
+
+        if tools_list:
+            html_content += "<h3>Available Tools</h3>"
             html_content += "<div class='flex gap-2 flex-wrap'>"
-            for name in tool_names:
-                html_content += f"<span class='tool-badge'>{name}</span>"
+            for tool in tools_list:
+                html_content += f"<span class='tool-badge'>{tool.name}</span>"
+            html_content += "</div>"
+
+        if resources_list:
+            html_content += "<h3>Available Resources</h3>"
+            html_content += "<div class='flex gap-2 flex-wrap'>"
+            for resource in resources_list:
+                html_content += f"<span class='resource-badge'>{resource.name}</span>"
             html_content += "</div>"
         
-        if resource_names:
-            html_content += "<h4>Resources:</h4>"
+        if prompts_list:
+            html_content += "<h3>Available Prompts</h3>"
             html_content += "<div class='flex gap-2 flex-wrap'>"
-            for name in resource_names:
-                html_content += f"<span class='resource-badge'>{name}</span>"
+            for prompt in prompts_list:
+                html_content += f"<span class='prompt-badge'>{prompt.name}</span>"
             html_content += "</div>"
-            
-        if prompt_names:
-            html_content += "<h4>Prompts:</h4>"
-            html_content += "<div class='flex gap-2 flex-wrap'>"
-            for name in prompt_names:
-                html_content += f"<span class='prompt-badge'>{name}</span>"
-            html_content += "</div>"
-            
-        if not (tool_names or resource_names or prompt_names):
+
+        if not (tools_list or resources_list or prompts_list):
             return HTMLResponse("<p class='tools-error'>No resources, tools, or prompts available.</p>")
 
         return HTMLResponse(html_content)
