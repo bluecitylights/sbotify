@@ -149,6 +149,25 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+        .tool-badge {
+            background-color: #e0e7ff;
+            color: #3b82f6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .tools-list-container {
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .tools-header {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -163,6 +182,14 @@
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <span class="loading-text">Thinking...</span>
+            </div>
+        </div>
+
+        <!-- Available Tools Container -->
+        <div class="tools-list-container">
+            <div class="tools-header">Available Tools:</div>
+            <div id="tools-list" hx-get="/tools" hx-trigger="load">
+                <!-- Tools will be loaded here via HTMX -->
             </div>
         </div>
 

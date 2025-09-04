@@ -7,25 +7,31 @@ from google import genai
 from fastmcp import Client
 
 # Load environment variables
+# You should manage your API key securely
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     raise ValueError("GEMINI_API_KEY environment variable not set.")
 
+# This client is now for core Gemini API calls, not tool-calling
 gemini_client = genai.Client(api_key=api_key)
 
+@asynccontextmanager
 async def lifespan(app: FastAPI):
-    # This block runs at application startup
     print("Initializing FastMCP client...")
     
-    async with Client(os.getenv("MCP_SERVER_URL", "http://localhost:8000")) as mcp_client:
-        app.state.mcp_client = mcp_client
-        print("FastMCP client session is ready.")
-        tools = await mcp_client.list_tools()
-        print("Available tools:", [tool.name for tool in tools])  
-        
+    try:
+        async with Client(os.getenv("MCP_SERVER_URL", "http://localhost:8000")) as mcp_client:
+            app.state.mcp_client = mcp_client
+            print("FastMCP client session is ready.")
+            tools = await mcp_client.list_tools()
+            print("Available tools:", [tool.name for tool in tools]) 
+            
+            yield
+            
+            print("FastMCP client session closed.")
+    except Exception as e:
+        print(f"Error during FastMCP client lifespan management: {e}")
         yield
-        
-        print("FastMCP client session closed.")
 
 app = FastAPI(lifespan=lifespan)
 
@@ -37,8 +43,8 @@ async def generate_gemini_response(prompt: str) -> str:
     """
     try:
         mcp_client = app.state.mcp_client
-        async with mcp_client:
-            response = await gemini_client.aio.models.generate_content(
+        
+        response = await gemini_client.aio.models.generate_content(
                 model="gemini-2.0-flash",
                 contents=prompt,
                 config=genai.types.GenerateContentConfig(
@@ -48,7 +54,10 @@ async def generate_gemini_response(prompt: str) -> str:
 
             )
 
+        if response.text:
             return response.text
+        else:
+            return "No text response received from the AI."
         
     except Exception as e:
         print(f"Error calling the Gemini API with FastMCP: {e}")
@@ -58,6 +67,31 @@ async def generate_gemini_response(prompt: str) -> str:
 @app.get("/")
 async def serve_frontend():
     return FileResponse(fe_path)
+
+@app.get("/tools")
+async def get_available_tools():
+    """
+    Fetches and returns the list of available tools from the MCP server.
+    """
+    try:
+        mcp_client = app.state.mcp_client
+        tools = await mcp_client.list_tools()
+        tool_names = [tool.name for tool in tools]
+        
+        if not tool_names:
+            return HTMLResponse("<p class='tools-error'>No tools available.</p>")
+
+        html_content = "<div class='flex gap-2 flex-wrap'>"
+        for tool_name in tool_names:
+            html_content += f"<span class='tool-badge'>{tool_name}</span>"
+        html_content += "</div>"
+        
+        return HTMLResponse(html_content)
+        
+    except Exception as e:
+        print(f"Error fetching available tools: {e}")
+        return HTMLResponse("<p class='tools-error'>Failed to load tools.</p>")
+
 
 @app.post("/chat")
 async def chat_response(prompt: str = Form(...)):
