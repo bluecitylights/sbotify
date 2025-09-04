@@ -1,35 +1,26 @@
-import os
-import uvicorn
-from pathlib import Path
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+# A simple FastAPI application to act as a Backend for Frontend (BFF).
+# To run this file, you'll need to install FastAPI and a server like Uvicorn:
+# uv add fastapi uvicorn google-generativeai
 
-# Import the Google Generative AI library
+import os
+from fastapi import FastAPI, Form
+from fastapi.responses import HTMLResponse, FileResponse
+from pathlib import Path
 import google.generativeai as genai
 
-# Initialize FastAPI
+# Load environment variables. Uvicorn will automatically handle this
+# if you run it with the --env-file flag, e.g.:
+# uvicorn bff_app:app --reload --env-file example.env
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("GEMINI_API_KEY environment variable not set.")
+
+# Configure the Gemini API client
+genai.configure(api_key=api_key)
+
 app = FastAPI()
 
-# Mount the static files directory to serve your front-end assets (e.g., CSS)
-# The `os.path.dirname(__file__)` gets the directory of the current file.
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FE_PATH = os.path.join(BASE_DIR, '..', 'frontend')
-app.mount("/static", StaticFiles(directory=FE_PATH), name="static")
-
-# We will use Jinja2 to serve the HTML file
-templates = Jinja2Templates(directory=FE_PATH)
-
-# Route to serve the main HTML page
-@app.get("/", response_class=HTMLResponse)
-async def read_item(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-# Configure the Gemini API client with an API key
-# You must replace this with your actual API key
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key=GEMINI_API_KEY)
+fe_path = Path(__file__).parent.parent.parent / "src" / "index.html"
 
 # An async function to get a response from the Gemini model
 async def generate_gemini_response(prompt: str) -> str:
@@ -48,32 +39,27 @@ async def generate_gemini_response(prompt: str) -> str:
         print(f"Error calling the Gemini API: {e}")
         return "Sorry, I am unable to generate a response at this time."
 
-# Route to handle the chat messages. This is a POST request from the form.
-@app.post("/chat", response_class=HTMLResponse)
-async def chat_response(request: Request):
-    # Get the user's prompt from the form data.
-    form_data = await request.form()
-    prompt = form_data.get("prompt")
-    
-    # Call the Gemini model to get a response
+@app.get("/")
+async def serve_frontend():
+    return FileResponse(fe_path)
+
+@app.post("/chat")
+async def chat_response(prompt: str = Form(...)):
     llm_response = await generate_gemini_response(prompt)
     
-    # Return the HTML for the new chat bubbles
-    return f"""
-    <div class="flex justify-end">
-        <div class="chat-bubble user-bubble rounded-xl rounded-br-none p-3 shadow-md">
-            {prompt}
+    # Return the HTML fragment that HTMX will swap into the page.
+    return HTMLResponse(f"""
+        <div class="flex justify-end">
+            <div class="chat-bubble user-bubble">
+                {prompt}
+            </div>
         </div>
-    </div>
-    <div class="flex justify-start">
-        <div class="chat-bubble bot-bubble rounded-xl rounded-bl-none p-3 shadow-md">
-            {llm_response}
+        <div class="flex justify-start">
+            <div class="chat-bubble bot-bubble">
+                {llm_response}
+            </div>
         </div>
-    </div>
-    """
+    """)
 
-# # Run the server directly from this file
-# if __name__ == "__main__":
-#     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
-
-
+# To run the server, use the command:
+# uvicorn bff_app:app --reload --env-file example.env
