@@ -44,20 +44,30 @@ async def generate_gemini_response(prompt: str) -> str:
     try:
         mcp_client = app.state.mcp_client
         
+        system_instruction = "You are a helpful AI assistant. Answer general knowledge questions using your own knowledge. Only use the provided tools when the question explicitly requires their functionality, such as performing a calculation or accessing specific external data."
+        
         response = await gemini_client.aio.models.generate_content(
                 model="gemini-2.0-flash",
                 contents=prompt,
                 config=genai.types.GenerateContentConfig(
                     temperature=0,
                     tools=[mcp_client.session],
+                    system_instruction=system_instruction,
                 ),
 
             )
 
+        is_tool_based = bool(response.automatic_function_calling_history)
+        
+        response_text = ""
         if response.text:
-            return response.text
+            response_text = response.text
+
+        # Add a prefix if a tool was used.
+        if is_tool_based:
+            return f"Tool-based: {response_text}"
         else:
-            return "No text response received from the AI."
+            return response_text
         
     except Exception as e:
         print(f"Error calling the Gemini API with FastMCP: {e}")
