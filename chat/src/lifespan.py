@@ -30,9 +30,10 @@ async def lifespan(app: FastAPI):
             auth_request = Request()
             token = id_token.fetch_id_token(auth_request, mcp_server_url)
             logger.info("Successfully obtained Cloud Run identity token")
+            auth_headers = {"Authorization": f"Bearer {token}"}
             
             # Create and store the client (keep connection alive)
-            app.state.mcp_client = Client(mcp_server_url)
+            app.state.mcp_client = Client(f"mcp_server_url/mcp", headers=auth_headers)
             await app.state.mcp_client.__aenter__()  # Start the connection
             logger.info("MCP client connected successfully (Cloud Run)")
                 
@@ -42,7 +43,7 @@ async def lifespan(app: FastAPI):
     
     else:
         # Local development - use environment variable or default to proxy tunnel
-        mcp_server_url = os.getenv("MCP_SERVER_URL", "http://localhost:8080/mcp")
+        mcp_server_url = os.getenv("MCP_SERVER_URL", "http://localhost:8080")
         logger.info(f"Local development - connecting to: {mcp_server_url}")
         if mcp_server_url.startswith("http://localhost"):
             logger.info("Using local URL - make sure gcloud proxy is running if needed:")
