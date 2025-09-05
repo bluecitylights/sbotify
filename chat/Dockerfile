@@ -18,5 +18,6 @@ COPY . .
 EXPOSE 8080
 
 # RUN ls -R
-
+# Make the script executable
+RUN chmod +x run.sh
 ENTRYPOINT ["./run.sh"]
