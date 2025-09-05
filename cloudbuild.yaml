@@ -13,7 +13,7 @@ steps:
   args:
   - run
   - deploy
-  - sbotify-${_SERVICE}
+  - ${_APP}-${_SERVICE}
   - --image
   - '${_IMAGE}'
   - --region
@@ -24,4 +24,5 @@ images:
 
 substitutions:
   _REGION: 'europe-west4'
-  _IMAGE: '${_REGION}-docker.pkg.dev/${PROJECT_ID}/sbotify/${_SERVICE}:${SHORT_SHA}'
+  _IMAGE: '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_APP}/${_SERVICE}:${SHORT_SHA}'
+  _APP: 'sbotify
