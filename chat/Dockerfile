@@ -19,5 +19,4 @@ EXPOSE 8080
 
 # RUN ls -R
 
-# Define the command to run the application, using the PORT environment variable
-CMD ["/app/.venv/bin/uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", 8080]
+ENTRYPOINT ["./run.sh"]
