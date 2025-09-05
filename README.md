@@ -18,8 +18,12 @@ uv run mcp-client/client.py
 Make sure that you or any team members trying to access the remote MCP server have the roles/run.invoker IAM role bound to their IAM principal (Google Cloud account).
 
 ```bash
-#Make tunnel to the Cloud Run
+#Make tunnel to the Cloud Run mcp server
 gcloud run services proxy sbotify-mcp-server --region=europe-west4
+
+# or to chat
+gcloud run services proxy sbotify-chat --region=europe-west4
+
 ```
 
 All traffic to http://127.0.0.1:8080 will now be authenticated and forwarded to our remote MCP server.
