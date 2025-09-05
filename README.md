@@ -30,6 +30,6 @@ All traffic to http://127.0.0.1:8080 will now be authenticated and forwarded to 
 # Chat
 
 ```bash
-uvicorn src.backend.main:app --reload
-uvicorn chat.src.backend.main:app --reload-dir chat\src --env-file .env
+uvicorn src.main:app --reload
+uvicorn chat.src.main:app --reload-dir chat\src --env-file .env
 ```
