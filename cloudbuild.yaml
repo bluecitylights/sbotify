@@ -18,7 +18,7 @@ steps:
   - '${_IMAGE}'
   - --region
   - '${_REGION}'
-  - --set-env-vars=MCP_SERVER_URL=http://${_APP}-mcp-server.${_REGION}.run.app
+  - --set-env-vars=MCP_SERVER_URL_GCP=http://${_APP}-mcp-server.${_REGION}.run.app
   - --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com
 
 images:
