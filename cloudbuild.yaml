@@ -19,7 +19,7 @@ steps:
   - --regionsteps:
 # Build and push the Docker image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', '${_IMAGE}', 'chat']
+  args: ['build', '-t', '${_IMAGE}', '${_SERVICE}']
 
 # Push the Docker image to Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
