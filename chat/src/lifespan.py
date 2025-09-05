@@ -21,9 +21,9 @@ async def lifespan(app: FastAPI):
     mcp_server_url = os.getenv("MCP_SERVER_URL", "http://localhost:8000")
     service_account_email = os.getenv("SERVICE_ACCOUNT_EMAIL")
     
-    if not service_account_email:
-        logger.error("SERVICE_ACCOUNT_EMAIL environment variable not set")
-        raise ValueError("SERVICE_ACCOUNT_EMAIL environment variable is required")
+    # if not service_account_email:
+    #     logger.error("SERVICE_ACCOUNT_EMAIL environment variable not set")
+    #     raise ValueError("SERVICE_ACCOUNT_EMAIL environment variable is required")
     
     try:
         auth_headers = await _get_auth_headers(mcp_server_url, service_account_email)
