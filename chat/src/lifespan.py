@@ -34,4 +34,5 @@ async def lifespan(app: FastAPI):
             print("Clients session closed.")
     except Exception as e:
         print(f"Error during client lifespan management: {e}")
+        print(f"mcp_server_url: {mcp_server_url}")
         yield
