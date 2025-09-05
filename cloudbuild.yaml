@@ -1,7 +1,7 @@
 steps:
 # Build and push the Docker image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', '${_IMAGE}', '${_SERVICE}']
+  args: ['build', '-t', '${_IMAGE}', 'src/${_SERVICE}']
 
 # Deploy the image to Cloud Run
 - name: 'gcr.io/cloud-builders/docker'
@@ -26,3 +26,6 @@ substitutions:
   _REGION: 'europe-west4'
   _IMAGE: '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_APP}/${_SERVICE}:${SHORT_SHA}'
   _APP: 'sbotify'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
