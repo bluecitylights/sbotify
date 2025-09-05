@@ -1,7 +1,7 @@
 steps:
 # Build and push the Docker image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', '${_IMAGE}', 'mcp-server']
+  args: ['build', '-t', '${_IMAGE}', '${_SERVICE}']
 
 # Deploy the image to Cloud Run
 - name: 'gcr.io/cloud-builders/docker'
@@ -13,7 +13,7 @@ steps:
   args:
   - run
   - deploy
-  - sbotify-mcp-server
+  - sbotify-${_SERVICE}
   - --image
   - '${_IMAGE}'
   - --region
@@ -24,7 +24,4 @@ images:
 
 substitutions:
   _REGION: 'europe-west4'
-  _IMAGE: '${_REGION}-docker.pkg.dev/${PROJECT_ID}/sbotify/mcp-server:${SHORT_SHA}'
-
-options:
-  logging: CLOUD_LOGGING_ONLY
+  _IMAGE: '${_REGION}-docker.pkg.dev/${PROJECT_ID}/sbotify/${_SERVICE}:${SHORT_SHA}'
