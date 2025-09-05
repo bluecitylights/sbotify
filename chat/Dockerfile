@@ -17,5 +17,5 @@ COPY . .
 # Expose the application port
 EXPOSE 8080
 
-# Define the command to run the application
-CMD ["uvicorn", "chat.src.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Define the command to run the application, using the PORT environment variable
+CMD ["uvicorn", "chat.src.main:app", "--host", "0.0.0.0", "--port", "${PORT}"]
