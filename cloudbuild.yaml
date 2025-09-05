@@ -28,7 +28,6 @@ substitutions:
   _REGION: 'europe-west4'
   _IMAGE: '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_APP}/${_SERVICE}:${SHORT_SHA}'
   _APP: 'sbotify'
-  _SERVICE: 'chat'
 
 options:
   logging: CLOUD_LOGGING_ONLY
