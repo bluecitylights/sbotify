@@ -1,9 +1,9 @@
 steps:
 # Build and push the Docker image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', '${_IMAGE}', 'src/${_SERVICE}']
+  args: ['build', '-t', '${_IMAGE}', '${_SERVICE}']
 
-# Deploy the image to Cloud Run
+# Push the Docker image to Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', '${_IMAGE}']
 
