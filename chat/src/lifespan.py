@@ -13,9 +13,10 @@ async def lifespan(app: FastAPI):
     
     try:
         # Initialize the FastMCP client and store it in app state.
-        async with Client(os.getenv("MCP_SERVER_URL", "http://localhost:8000")) as mcp_client:
+        mcp_server_url = os.getenv("MCP_SERVER_URL", "http://localhost:8000")
+        async with Client(mcp_server_url) as mcp_client:
             app.state.mcp_client = mcp_client
-            print("FastMCP client session is ready.")
+            print(f"FastMCP client session is ready on {mcp_server_url}")
             tools = await mcp_client.list_tools()
             print("Available tools:", [tool.name for tool in tools])
 
