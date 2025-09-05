@@ -16,7 +16,39 @@ steps:
   - ${_APP}-${_SERVICE}
   - --image
   - '${_IMAGE}'
+  - --regionsteps:
+# Build and push the Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', '${_IMAGE}', 'chat']
+
+# Push the Docker image to Artifact Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', '${_IMAGE}']
+
+# Deploy the image to Cloud Run with the environment variable
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+  - run
+  - deploy
+  - ${_APP}-${_SERVICE}
+  - --image
+  - '${_IMAGE}'
   - --region
+  - '${_REGION}'
+  - --set-env-vars=MCP_SERVER=http://${_APP}-mcp-server.${_REGION}.run.app
+
+images:
+- '${_IMAGE}'
+
+substitutions:
+  _REGION: 'europe-west4'
+  _IMAGE: '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_APP}/${_SERVICE}:${SHORT_SHA}'
+  _APP: 'sbotify'
+  _SERVICE: 'chat'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
   - '${_REGION}'
 
 images:
