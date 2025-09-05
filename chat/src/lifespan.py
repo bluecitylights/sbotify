@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
     # Use different connection strategies for different environments
     if "K_SERVICE" in os.environ:
         # Cloud Run production - use actual service URL with auth
-        mcp_server_url = os.getenv("MCP_SERVER_URL", "http://sbotify-mcp-server.europe-west4.run.app")
+        mcp_server_url = os.getenv("MCP_SERVER_URL_GCP")
         logger.info("Cloud Run environment - using service-to-service authentication")
         
         try:
