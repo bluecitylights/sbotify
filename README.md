@@ -29,7 +29,8 @@ gcloud run services proxy sbotify-chat --region=europe-west4
 All traffic to http://127.0.0.1:8080 will now be authenticated and forwarded to our remote MCP server.
 
 
-
+# Cloud Run connectivity
+https://cloud.google.com/run/docs/tutorials/secure-services
 
 # Chat
 
