@@ -9,6 +9,7 @@ steps:
 
 # Deploy the image to Cloud Run with conditional flags
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  secretEnv: ['GEMINI_API_KEY']
   entrypoint: bash
   args:
   - '-c'
@@ -18,7 +19,7 @@ steps:
       --max-instances=${_MAX_INSTANCES} \
       --region=${_REGION} \
       --platform=managed \
-      --update-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app \
+      --set-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app \
       --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com \
       --no-allow-unauthenticated \
       --ingress internal-and-cloud-load-balancing"
@@ -40,7 +41,7 @@ steps:
       echo "Deploying without IAP..."
       gcloud run deploy ${_APP}-${_SERVICE} $common_flags
     fi
-  secretEnv: ['GEMINI_API_KEY']
+
 
 images:
 - '${_IMAGE}'
