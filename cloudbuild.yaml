@@ -27,3 +27,17 @@ steps:
     
     echo "Running deployment command: $deploy_cmd"
     $deploy_cmd
+
+  images:
+- '${_IMAGE}'
+
+substitutions:
+  _REGION: 'europe-west4'
+  _IMAGE: '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_APP}/${_SERVICE}:${SHORT_SHA}'
+  _APP: 'sbotify'
+  _CHAT_SERVER: 'chat'
+  _MCP_SERVICE: 'mcp-server'
+  _SERVICE: '' # This substitution will be provided at the command line
+
+options:
+  logging: CLOUD_LOGGING_ONLY
