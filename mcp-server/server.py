@@ -1,6 +1,6 @@
 from fastmcp import FastMCP
 
-mcp = FastMCP("Sbotify MCP Server")
+mcp = FastMCP("Sbotify MCP Server!")
 print("Sbotify MCP Server created.")
 
 @mcp.tool

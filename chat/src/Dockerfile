@@ -17,5 +17,5 @@ COPY . .
 # Expose the application port
 EXPOSE 8080
 
-# Define the command to run the application
-CMD ["uv", "run", "server.py"]
+# Run the application with Uvicorn
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

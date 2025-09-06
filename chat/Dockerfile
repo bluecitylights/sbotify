@@ -17,5 +17,7 @@ COPY . .
 # Expose the application port
 EXPOSE 8080
 
-# Define the command to run the application
-CMD ["uv", "run", "server.py"]
+# RUN ls -R
+# Make the script executable
+RUN chmod +x run.sh
+ENTRYPOINT ["./run.sh"]

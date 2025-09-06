@@ -13,7 +13,8 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(api_router, prefix="/api")
 app.include_router(ui_router, prefix="/ui")
 
-fe_path = Path(__file__).parent.parent.parent / "src" / "frontend" / "index.html"
+# fe_path = Path(__file__).parent.parent.parent / "src" / "frontend" / "index.html"
+fe_path = Path(__file__).parent / "ui" / "index.html"
 
 @app.get("/")
 async def serve_frontend_root():
