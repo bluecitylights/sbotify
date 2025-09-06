@@ -13,39 +13,38 @@ steps:
   args:
   - '-c'
   - |
-    # Basic deployment command
-    if [ "${_SERVICE}" == "chat" ]; then
-      deploy_cmd="gcloud beta run deploy ${_APP}-${_SERVICE} \
-        --image=${_IMAGE} \
-        --max-instances=1 \
-        --region=${_REGION} \
-        --platform=managed \
-        --set-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-mcp-server-${PROJECT_NUMBER}.${_REGION}.run.app \
-        --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com \
-        --iap --no-allow-unauthenticated"
+    # All services need these common flags
+    common_flags="--image=${_IMAGE} \
+      --max-instances=${_MAX_INSTANCES} \
+      --region=${_REGION} \
+      --platform=managed \
+      --set-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app \
+      --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com \
+      --no-allow-unauthenticated"
+      
+    # Deploy based on IAP variable
+    if [ "${_IAP}" == "true" ]; then
+      # IAP requires gcloud beta and specific flags
+      echo "Deploying with IAP..."
+      gcloud beta run deploy ${_APP}-${_SERVICE} $common_flags \
+        --iap --ingress internal-and-cloud-load-balancing
     else
-      deploy_cmd="gcloud run deploy ${_APP}-${_SERVICE} \
-        --image=${_IMAGE} \
-        --max-instances=1 \
-        --region=${_REGION} \
-        --platform=managed \
-        --set-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-mcp-server-${PROJECT_NUMBER}.${_REGION}.run.app \
-        --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com \
-        --no-allow-unauthenticated"
+      # Standard deployment without IAP
+      echo "Deploying without IAP..."
+      gcloud run deploy ${_APP}-${_SERVICE} $common_flags
     fi
-    
-    # Ingress flag
-    deploy_cmd+=" --ingress internal-and-cloud-load-balancing"
-    
-    # Execute the final deployment command
-    echo "Running deployment command: $deploy_cmd"
-    $deploy_cmd
+
 images:
 - '${_IMAGE}'
+
 substitutions:
   _REGION: 'europe-west4'
   _IMAGE: '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_APP}/${_SERVICE}:${SHORT_SHA}'
   _APP: 'sbotify'
-  _SERVICE: '' # This substitution will be provided at the command line
+  _MCP_SERVER: 'mcp-server'
+  _MAX_INSTANCES: '1'
+  _SERVICE: ''
+  _IAP: 'false'
+
 options:
   logging: CLOUD_LOGGING_ONLY
