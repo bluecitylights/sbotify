@@ -7,19 +7,30 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', '${_IMAGE}']
 
-# Deploy the image to Cloud Run with the environment variable
+# Deploy the image to Cloud Run with conditional flags
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: gcloud
+  entrypoint: bash
   args:
-  - run
-  - deploy
-  - ${_APP}-${_SERVICE}
-  - --image
-  - '${_IMAGE}'
-  - --region
-  - '${_REGION}'
-  - --set-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-mcp-server-${PROJECT_NUMBER}.${_REGION}.run.app
-  - --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com
+  - '-c'
+  - |
+    # Basic deployment command
+    deploy_cmd="gcloud run deploy ${_APP}-${_SERVICE} \
+      --image=${_IMAGE} \
+      --max-instances=1 \
+      --region=${_REGION} \
+      --platform=managed \
+      --set-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-mcp-server-${PROJECT_NUMBER}.${_REGION}.run.app \
+      --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com"
+      --no-allow-unauthenticated"
+
+    # Add conditional flags based on the service name
+    if [ "${_SERVICE}" == "${_CHAT_SERVER}" ]; then
+      deploy_cmd+=" --iap -- ingress
+    fi
+
+    # Execute the final deployment command
+    echo "Running deployment command: $deploy_cmd"
+    $deploy_cmd
 
 images:
 - '${_IMAGE}'
@@ -28,6 +39,9 @@ substitutions:
   _REGION: 'europe-west4'
   _IMAGE: '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_APP}/${_SERVICE}:${SHORT_SHA}'
   _APP: 'sbotify'
+  _CHAT_SERVER: 'chat'
+  _MCP_SERVICE: 'mcp-server'
+  _SERVICE: '' # This substitution will be provided at the command line
 
 options:
   logging: CLOUD_LOGGING_ONLY

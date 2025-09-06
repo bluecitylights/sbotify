@@ -31,6 +31,8 @@ All traffic to http://127.0.0.1:8080 will now be authenticated and forwarded to 
 
 # Cloud Run connectivity
 https://cloud.google.com/run/docs/tutorials/secure-services
+https://medium.com/google-cloud/using-google-identity-aware-proxy-iap-with-cloud-run-without-a-load-balancer-27db89b9ed49
+
 
 # Chat
 
