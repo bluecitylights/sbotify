@@ -13,12 +13,20 @@ steps:
   args:
   - '-c'
   - |
-    # All services need these common flags
+    # Initialize common_flags with the base set of variables
     common_flags="--image=${_IMAGE} \
       --max-instances=${_MAX_INSTANCES} \
       --region=${_REGION} \
       --platform=managed \
-      --set-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app,GEMINI_API_KEY=$$GEMINI_API_KEY"
+      --set-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app \
+      --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com \
+      --no-allow-unauthenticated"
+    
+    # Conditionally add the GEMINI_API_KEY for the 'chat' service only
+    if [ "${_SERVICE}" == "chat" ]; then
+      echo "Adding GEMINI_API_KEY to the chat service environment variables."
+      common_flags+=" --update-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY"
+    fi
       
     # Deploy based on IAP variable
     if [ "${_IAP}" == "true" ]; then
