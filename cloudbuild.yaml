@@ -26,7 +26,7 @@ steps:
     # Conditionally add the GEMINI_API_KEY for the 'chat' service only
     if [ "${_SERVICE}" == "chat" ]; then
       echo "Adding GEMINI_API_KEY to the chat service environment variables."
-      common_flags+=" --update-env-vars=GEMINI_API_KEY=1234"
+      common_flags+=" --update-env-vars=GEMINI_API_KEY=12$$GEMINI_API_KEY34"
     fi
 
     # Deploy based on IAP variable
