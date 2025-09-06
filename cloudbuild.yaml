@@ -9,6 +9,7 @@ steps:
 
 # Deploy the image to Cloud Run with conditional flags
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  secretEnv: ['GEMINI_API_KEY']
   entrypoint: bash
   args:
   - '-c'
