@@ -13,7 +13,7 @@ steps:
   args:
   - '-c'
   - |
-    # Initialize common_flags with the base set of variables
+    # All services need these common flags
     common_flags="--image=${_IMAGE} \
       --max-instances=${_MAX_INSTANCES} \
       --region=${_REGION} \
@@ -21,12 +21,6 @@ steps:
       --set-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app \
       --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com \
       --no-allow-unauthenticated"
-    
-    # Conditionally add the GEMINI_API_KEY for the 'chat' service only
-    if [ "${_SERVICE}" == "chat" ]; then
-      echo "Adding GEMINI_API_KEY to the chat service environment variables."
-      common_flags+=" --update-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY"
-    fi
       
     # Deploy based on IAP variable
     if [ "${_IAP}" == "true" ]; then
@@ -37,10 +31,8 @@ steps:
     else
       # Standard deployment without IAP
       echo "Deploying without IAP..."
-      gcloud run deploy ${_APP}-${_SERVICE} $common_flags \
-        --ingress internal-and-cloud-load-balancing
+      gcloud run deploy ${_APP}-${_SERVICE} $common_flags
     fi
-  secretEnv: ['GEMINI_API_KEY']
 
 images:
 - '${_IMAGE}'
@@ -56,7 +48,3 @@ substitutions:
 
 options:
   logging: CLOUD_LOGGING_ONLY
-
-availableSecrets:
-- secretManager: projects/${PROJECT_ID}/secrets/gemini-api-key/versions/latest
-  env: 'GEMINI_API_KEY'
