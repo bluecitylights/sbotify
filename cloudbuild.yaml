@@ -21,8 +21,7 @@ steps:
       --platform=managed \
       --update-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app \
       --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com \
-      --no-allow-unauthenticated \
-      --ingress internal-and-cloud-load-balancing"
+      --no-allow-unauthenticated"
     
     # Conditionally add the GEMINI_API_KEY for the 'chat' service only
     if [ "${_SERVICE}" == "chat" ]; then
