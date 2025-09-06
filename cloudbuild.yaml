@@ -28,7 +28,7 @@ steps:
     echo "Running deployment command: $deploy_cmd"
     $deploy_cmd
 
-  images:
+images:
 - '${_IMAGE}'
 
 substitutions:
