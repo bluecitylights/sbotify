@@ -1,4 +1,4 @@
-<div class="app-container">
+<div class="app-container flex flex-col h-full w-full">
     <!-- Chat Header -->
     <div class="chat-header">
         <h1>HTMX AI Chat Assistant</h1>
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Chat Messages Container -->
-    <div id="chat-messages" class="chat-messages-container">
+    <div id="chat-messages" class="chat-messages-container flex-1 overflow-y-auto">
         <div class="flex justify-start">
             <div class="chat-bubble bot-bubble p-3">
                 Hello! I'm an AI assistant. What can I help you with today?
