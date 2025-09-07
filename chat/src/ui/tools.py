@@ -1,15 +1,24 @@
-from fastapi import APIRouter, Depends
+import asyncio
+from fastapi import APIRouter, Depends, Request
+from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastmcp import Client
+from pathlib import Path
 from ..dependencies import get_mcp_client
-import asyncio
+
+# Get the base directory of the project to locate the templates folder
+BASE_DIR = Path(__file__).resolve().parent
+
+# Initialize the Jinja2Templates instance, pointing to the 'ui' directory
+templates = Jinja2Templates(directory=BASE_DIR)
 
 router = APIRouter()
 
-@router.get("/tools")
-async def get_available_resources(mcp_client: Client = Depends(get_mcp_client)):
+@router.get("/tools", response_class=HTMLResponse)
+async def get_available_resources(request: Request, mcp_client: Client = Depends(get_mcp_client)):
     """
-    Fetches and returns a list of available tools, resources, and prompts from the MCP server.
+    Fetches available tools, resources, and prompts from the MCP server
+    and renders them using an HTML template.
     """
     try:
         # Fetch all three types of objects concurrently
@@ -19,34 +28,18 @@ async def get_available_resources(mcp_client: Client = Depends(get_mcp_client)):
             mcp_client.list_prompts()
         )
         
-        html_content = ""
-
-        if tools_list:
-            html_content += "<h3>Available Tools</h3>"
-            html_content += "<div class='flex gap-2 flex-wrap'>"
-            for tool in tools_list:
-                html_content += f"<span class='tool-badge'>{tool.name}</span>"
-            html_content += "</div>"
-
-        if resources_list:
-            html_content += "<h3>Available Resources</h3>"
-            html_content += "<div class='flex gap-2 flex-wrap'>"
-            for resource in resources_list:
-                html_content += f"<span class='resource-badge'>{resource.name}</span>"
-            html_content += "</div>"
-        
-        if prompts_list:
-            html_content += "<h3>Available Prompts</h3>"
-            html_content += "<div class='flex gap-2 flex-wrap'>"
-            for prompt in prompts_list:
-                html_content += f"<span class='prompt-badge'>{prompt.name}</span>"
-            html_content += "</div>"
-
-        if not (tools_list or resources_list or prompts_list):
-            return HTMLResponse("<p class='tools-error'>No resources, tools, or prompts available.</p>")
-
-        return HTMLResponse(html_content)
+        # Render the 'tools.html' template with the fetched data
+        # The 'request' object is required for Jinja2 templates
+        return templates.TemplateResponse(
+            "tools.html",
+            {
+                "request": request,
+                "tools_list": tools_list,
+                "resources_list": resources_list,
+                "prompts_list": prompts_list,
+            }
+        )
         
     except Exception as e:
         print(f"Error fetching available resources: {e}")
-        return HTMLResponse("<p class='tools-error'>Failed to load resources.</p>")
+        return HTMLResponse("<p class='tools-error text-sm text-gray-500'>Failed to load resources.</p>")

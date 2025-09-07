@@ -1,0 +1,30 @@
+{% if tools_list %}
+    <h3 class="font-semibold text-sm text-gray-700 mt-2 mb-1">Available Tools</h3>
+    <div class="flex gap-2 flex-wrap">
+        {% for tool in tools_list %}
+            <span class="tool-badge">{{ tool.name }}</span>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if resources_list %}
+    <h3 class="font-semibold text-sm text-gray-700 mt-2 mb-1">Available Resources</h3>
+    <div class="flex gap-2 flex-wrap">
+        {% for resource in resources_list %}
+            <span class="resource-badge">{{ resource.name }}</span>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if prompts_list %}
+    <h3 class="font-semibold text-sm text-gray-700 mt-2 mb-1">Available Prompts</h3>
+    <div class="flex gap-2 flex-wrap">
+        {% for prompt in prompts_list %}
+            <span class="prompt-badge">{{ prompt.name }}</span>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if not tools_list and not resources_list and not prompts_list %}
+    <p class="tools-error text-sm text-gray-500">No resources, tools, or prompts available.</p>
+{% endif %}
