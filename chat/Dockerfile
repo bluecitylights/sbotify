@@ -14,9 +14,8 @@ RUN uv sync
 # Copy the rest of your application code
 COPY . .
 
-# Copy the shared static assets from the parent directory.
-# The build context is 'chat', so '..' refers to the project root.
-COPY ../static /app/static
+# Copy the static folder from the build context
+COPY static /app/static
 
 # Expose the application port
 EXPOSE 8080
