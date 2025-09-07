@@ -31,7 +31,7 @@ async def get_available_resources(request: Request, mcp_client: Client = Depends
         # Render the 'tools.html' template with the fetched data
         # The 'request' object is required for Jinja2 templates
         return templates.TemplateResponse(
-            "tools.html",
+            "tools_template.html",
             {
                 "request": request,
                 "tools_list": tools_list,
