@@ -1,0 +1,71 @@
+<div class="app-container">
+    <!-- Chat Header -->
+    <div class="chat-header">
+        <h1>HTMX AI Chat Assistant</h1>
+        <!-- Loading Spinner -->
+        <div class="loading-indicator">
+            <svg class="loading-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="loading-text">Thinking...</span>
+        </div>
+    </div>
+
+    <!-- Available Tools Container -->
+    <div class="tools-list-container">
+        <div class="tools-header">Available Tools:</div>
+        <div id="tools-list" hx-get="/ui/tools" hx-trigger="load">
+            <!-- Tools will be loaded here via HTMX -->
+        </div>
+    </div>
+
+    <!-- Chat Messages Container -->
+    <div id="chat-messages" class="chat-messages-container">
+        <div class="flex justify-start">
+            <div class="chat-bubble bot-bubble p-3">
+                Hello! I'm an AI assistant. What can I help you with today?
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Input Form -->
+    <form class="chat-form"
+          id="chat-form"
+          hx-post="/ui/chat"
+          hx-target="#chat-messages"
+          hx-swap="beforeend"
+          hx-indicator=".loading-indicator"
+          hx-on::after-request="handleAfterRequest(this)">
+        <div class="chat-form-content">
+            <textarea name="prompt"
+                      class="chat-input"
+                      placeholder="Type your message..."
+                      rows="1"
+                      oninput="resizeTextarea(this)"></textarea>
+            <button type="submit"
+                    class="chat-button"
+                    hx-indicator=".loading-indicator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                </svg>
+            </button>
+        </div>
+    </form>
+</div>
+<script>
+    // JS functions that operate on the fragment's elements.
+    function handleAfterRequest(form) {
+        form.reset();
+        const textarea = form.querySelector('textarea');
+        textarea.style.height = 'auto';
+        textarea.focus();
+        const messagesContainer = document.getElementById('chat-messages');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function resizeTextarea(el) {
+        el.style.height = 'auto';
+        el.style.height = (el.scrollHeight) + 'px';
+    }
+</script>

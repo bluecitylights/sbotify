@@ -1,7 +1,24 @@
 steps:
+# This step prepares the build context for services that require static assets.
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: bash
+  args:
+    - '-c'
+    - |
+      if [ "${_SERVICE}" == "chat" ] || [ "${_SERVICE}" == "dashboard" ]; then
+        echo "Copying shared static assets for ${_SERVICE}..."
+        # Copy the 'static' folder into the service directory before building.
+        cp -r static "${_SERVICE}/"
+      else
+        echo "No static assets needed for ${_SERVICE}. Skipping copy."
+      fi
+  id: 'prepare-static-assets'
+  waitFor: ['-'] # This step runs first
+
 # Build and push the Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', '${_IMAGE}', '${_SERVICE}']
+  waitFor: ['prepare-static-assets']
 
 # Push the Docker image to Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
@@ -12,34 +29,34 @@ steps:
   secretEnv: ['GEMINI_API_KEY']
   entrypoint: bash
   args:
-  - '-c'
-  - |
-    # All services need these common flags. Use --update-env-vars for all.
-    common_flags="--image=${_IMAGE} \
-      --max-instances=${_MAX_INSTANCES} \
-      --region=${_REGION} \
-      --platform=managed \
-      --update-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app \
-      --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com \
-      --no-allow-unauthenticated"
-    
-    # Conditionally add the GEMINI_API_KEY for the 'chat' service only
-    if [ "${_SERVICE}" == "chat" ]; then
-      echo "Adding GEMINI_API_KEY to the chat service environment variables."
-      common_flags+=" --update-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY"
-    fi
+    - '-c'
+    - |
+      # All services need these common flags. Use --update-env-vars for all.
+      common_flags="--image=${_IMAGE} \
+        --max-instances=${_MAX_INSTANCES} \
+        --region=${_REGION} \
+        --platform=managed \
+        --update-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app \
+        --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com \
+        --no-allow-unauthenticated"
       
-    # Deploy based on IAP variable
-    if [ "${_IAP}" == "true" ]; then
-      # IAP requires gcloud beta and specific flags
-      echo "Deploying with IAP..."
-      gcloud beta run deploy ${_APP}-${_SERVICE} $common_flags \
-        --iap
-    else
-      # Standard deployment without IAP
-      echo "Deploying without IAP..."
-      gcloud run deploy ${_APP}-${_SERVICE} $common_flags
-    fi
+      # Conditionally add the GEMINI_API_KEY for the 'chat' service only
+      if [ "${_SERVICE}" == "chat" ]; then
+        echo "Adding GEMINI_API_KEY to the chat service environment variables."
+        common_flags+=" --update-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY"
+      fi
+        
+      # Deploy based on IAP variable
+      if [ "${_IAP}" == "true" ]; then
+        # IAP requires gcloud beta and specific flags
+        echo "Deploying with IAP..."
+        gcloud beta run deploy ${_APP}-${_SERVICE} $common_flags \
+          --iap
+      else
+        # Standard deployment without IAP
+        echo "Deploying without IAP..."
+        gcloud run deploy ${_APP}-${_SERVICE} $common_flags
+      fi
 
 images:
 - '${_IMAGE}'

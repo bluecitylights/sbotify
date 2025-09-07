@@ -14,10 +14,12 @@ RUN uv sync
 # Copy the rest of your application code
 COPY . .
 
+# Copy the static folder from the build context
+COPY static /app/static
+
 # Expose the application port
 EXPOSE 8080
 
-# RUN ls -R
 # Make the script executable
 RUN chmod +x run.sh
 ENTRYPOINT ["./run.sh"]
