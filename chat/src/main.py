@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
 from .lifespan import lifespan
@@ -13,7 +14,10 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(api_router, prefix="/api")
 app.include_router(ui_router, prefix="/ui")
 
-# fe_path = Path(__file__).parent.parent.parent / "src" / "frontend" / "index.html"
+# Mount the static directory from the project root.
+app.mount("/static", StaticFiles(directory="../static"), name="static")
+
+# fe_path = Path(__file__).parent.parent / "ui" / "index.html"
 fe_path = Path(__file__).parent / "ui" / "index.html"
 
 @app.get("/")
