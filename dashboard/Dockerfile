@@ -14,8 +14,12 @@ RUN uv sync
 # Copy the rest of your application code
 COPY . .
 
+# Copy the static folder from the build context
+COPY static /app/static
+
 # Expose the application port
 EXPOSE 8080
 
-# Run the application with Uvicorn
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Make the script executable
+RUN chmod +x run.sh
+ENTRYPOINT ["./run.sh"]
