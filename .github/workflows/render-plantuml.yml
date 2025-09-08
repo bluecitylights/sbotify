@@ -2,26 +2,23 @@ name: Render PlantUML Diagrams
 
 on:
   push:
-    paths:
-      - '**/*.puml' # Trigger when any .puml file is pushed
+    branches:
+      - dashboard
 
 jobs:
-  plantuml:
+  render:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Source
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate SVG Diagrams
+      - name: Render PlantUML Diagrams
         uses: holowinski/plantuml-github-action@main
         with:
           args: -tsvg -o diagrams/ **/*.puml
-          # -tsvg specifies SVG output
-          # -o diagrams/ specifies the output directory
-          # **/*.puml tells it to find all .puml files in the repo
-          
+
       - name: Commit rendered diagrams
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: '🎨 Rendered new PlantUML diagrams'
+          commit_message: '🎨 Rendered PlantUML diagrams'
           file_pattern: 'diagrams/*.svg'
