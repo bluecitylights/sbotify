@@ -4,9 +4,14 @@ skinparam {
   componentStyle rectangle
   defaultTextAlignment center
   backgroundcolor transparent
+  rectangle<<whitebox>> {
+    backgroundcolor white
+    linecolor white
+    roundcorner 20
+  }
 }
 
-rectangle "Overall System" #FFFFFF { ' <-- #FFFFFF sets background to white
+rectangle "Overall System" <<whitebox>> {
   actor "User" as user
 
   cloud "Google Cloud Run" as cloud {
@@ -35,5 +40,5 @@ rectangle "Overall System" #FFFFFF { ' <-- #FFFFFF sets background to white
   Serves index.html on /
   Fragment served on /chat
   end note
-} ' End of "Overall System" rectangle
+}
 @enduml
