@@ -3,6 +3,7 @@ skinparam {
   shadowing false
   componentStyle rectangle
   defaultTextAlignment center
+  backgroundcolor transparent  <-- Add this line
 }
 
 actor "User" as user
