@@ -70,31 +70,41 @@ Bob -> Alice : hello
 ```
 
 
-```mermaid
+```plantuml
 
-%%{init: {'theme': 'neutral'}}%%
-graph TD
-    subgraph "Google Cloud Run"
-        direction LR
-        mcp_server["mcp-server<br/>(fastmcp + htmx)"]
-        chat["chat<br/>(fastapi + htmx)<br/>(Google.genai)"]
-        dashboard["dashboard<br/>(fastapi + htmx)"]
-    end
+@startuml
+skinparam {
+  shadowing false
+  componentStyle rectangle
+  defaultTextAlignment center
+}
 
-    User[User]
-    User -- "Accesses" --> dashboard
-    User -- "Interacts with (standalone on /)" --> chat
+actor "User" as user
 
-    dashboard -- "Aggregates chat fragment from /chat" --> chat
-    dashboard -- "Rewrites htmx URLs (client-side aggregation)" --> chat
-    chat -- "Connects to /mcp route" --> mcp_server
+cloud "Google Cloud Run" as cloud {
+  component "mcp-server" as mcp_server {
+    [fastmcp + htmx]
+  }
 
-    style chat fill:#f9f,stroke:#333,stroke-width:2px
-    style dashboard fill:#f9f,stroke:#333,stroke-width:2px
-    style mcp_server fill:#f9f,stroke:#333,stroke-width:2px
+  component "chat" as chat {
+    [fastapi + htmx]
+    [Google.genai]
+  }
 
-    subgraph "Note"
-        direction TB
-        note1[chat serves index.html on /<br/>Fragment served on /chat]
-    end
+  component "dashboard" as dashboard {
+    [fastapi + htmx]
+  }
+}
+
+' Interactions
+user --> dashboard : "Accesses"
+user --> chat : "Interacts with directly\n(standalone)"
+dashboard -left-> chat : "Loads chat fragment\nfrom /chat route"
+chat -up-> mcp_server : "Connects to\n(via Cloud Run)"
+
+note bottom of chat
+Can run stand-alone on /chat route
+end note
+
+@enduml
 ```
