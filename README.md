@@ -50,3 +50,41 @@ https://medium.com/google-cloud/using-google-identity-aware-proxy-iap-with-cloud
 uvicorn src.main:app --reload
 uvicorn chat.src.main:app --reload-dir chat\src --env-file .env
 ```
+
+```plantuml
+@startuml
+skinparam {
+  shadowing false
+  componentStyle rectangle
+  defaultTextAlignment center
+}
+
+actor "User" as user
+
+cloud "Google Cloud Run" as cloud {
+  component "mcp-server" as mcp_server {
+    [fastmcp + htmx]
+  }
+
+  component "chat" as chat {
+    [fastapi + htmx]
+    [Google.genai]
+  }
+
+  component "dashboard" as dashboard {
+    [fastapi + htmx]
+  }
+}
+
+' Interactions
+user --> dashboard : "Accesses"
+user --> chat : "Interacts with directly\n(standalone)"
+dashboard -left-> chat : "Loads chat fragment\nfrom /chat route"
+chat -up-> mcp_server : "Connects to\n(via Cloud Run)"
+
+note bottom of chat
+Can run stand-alone on /chat route
+end note
+
+@enduml
+```
