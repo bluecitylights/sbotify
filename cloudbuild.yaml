@@ -37,7 +37,8 @@ steps:
         --region=${_REGION} \
         --platform=managed \
         --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com \
-        --no-allow-unauthenticated"
+        --no-allow-unauthenticated" \
+        --ingress=internal"
       
       # Conditionally add the GEMINI_API_KEY and MCP_SERVER_URL_GCP for the 'chat' service only
       if [ "${_SERVICE}" == "${_CHAT_SERVICE}" ]; then

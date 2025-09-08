@@ -63,5 +63,9 @@ gcloud run services update sbotify-dashboard \
 --vpc-egress=all-traffic
 ```
 
+```bash
+curl -H "Authorization: Bearer $(gcloud auth print-access-token)" https://sbotify-dashboard-912494315508.europe-west4.run.app/
+```
+
 # Diagrams
 ![Deployment Diagram](./diagrams/svg/deployment.svg)
