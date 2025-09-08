@@ -12,12 +12,13 @@ link user to chat--><path d="M596.96,163.0979 C572.61,173.9279 523.63,197.2579 4
 reverse link chat to dashboard--><path d="M127.5883,280.4269 C127.6548,280.2436 127.7219,280.0606 127.7895,279.8779 C127.9247,279.5126 128.0621,279.1484 128.2018,278.7856 C128.4811,278.0598 128.7694,277.3393 129.0668,276.6244 C129.6617,275.1946 130.2934,273.7876 130.9638,272.4075 C136.3269,261.3667 144.17,252.0504 155.52,246.6179 C216.06,217.6479 239.61,241.4379 306.52,246.6179 C358.32,250.6279 377.22,238.3079 422.02,264.6179 C453.39,283.0379 476.46,320.0479 488.23,342.3479 " fill="none" id="chat-backto-dashboard" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="127.5883,280.4269,134.4185,273.3313,129.2939,275.7268,126.8984,270.6022,127.5883,280.4269" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="149" x="156.52" y="237.6848">Aggregates chat fragment</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="96" x="183.02" y="252.8176">from /chat route</text><!--MD5=[a07bca55845fc5e292299c1820acb9f6]
 reverse link chat to dashboard--><path d="M127.5883,280.4269 C127.6548,280.2436 127.7219,280.0606 127.7895,279.8779 C127.9247,279.5126 128.0621,279.1484 128.2018,278.7856 C128.4811,278.0598 128.7694,277.3393 129.0668,276.6244 C129.6617,275.1946 130.2934,273.7876 130.9638,272.4075 C136.3269,261.3667 144.17,252.0504 155.52,246.6179 C216.06,217.6479 239.61,241.4379 306.52,246.6179 C358.32,250.6279 377.22,238.3079 422.02,264.6179 C453.39,283.0379 476.46,320.0479 488.23,342.3479 " fill="none" id="chat-backto-dashboard-1" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="127.5883,280.4269,134.4185,273.3313,129.2939,275.7268,126.8984,270.6022,127.5883,280.4269" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="115" x="173.52" y="237.6848">Rewrites htmx URLs</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="140" x="161.02" y="252.8176">(client-side aggregation)</text><!--MD5=[2198cc4f4ff5714f4781c68e3268183e]
 reverse link mcp_server to chat--><path d="M69.8947,162.194 C69.7978,162.264 69.7002,162.3347 69.6019,162.4059 C68.0295,163.5457 66.2856,164.8397 64.4133,166.2748 C56.9241,172.0154 47.3806,180.0154 38.5413,189.4479 C20.8625,208.3129 6,232.9079 16.02,256.6179 C28.605,286.3979 54.48,311.8154 77.5138,329.9504 C89.0306,339.0179 99.8372,346.2648 107.917,351.3261 C109.937,352.5914 111.7865,353.7201 113.4341,354.7065 C113.5371,354.7681 113.6393,354.8292 113.7407,354.8898 " fill="none" id="mcp_server-backto-chat" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="69.8947,162.194,60.2571,164.2226,65.8419,165.1222,64.9422,170.7071,69.8947,162.194" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="70" x="17.02" y="237.6848">Connects to</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="65" x="19.52" y="252.8176">/mcp route</text><!--MD5=[6cdcc4071c2500d4b6b16837a0373013]
-link chat to GMN18--><path d="M122.02,403.1038 C122.02,403.4809 122.02,403.8594 122.02,404.2391 C122.02,405.758 122.02,407.2972 122.02,408.8529 C122.02,433.7454 122.02,462.8979 122.02,481.5479 " fill="none" id="chat-GMN18" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><!--MD5=[c57bb99010cf318a195d49d38c7cc8a7]
+link chat to GMN18--><path d="M122.02,403.1038 C122.02,403.4809 122.02,403.8594 122.02,404.2391 C122.02,405.758 122.02,407.2972 122.02,408.8529 C122.02,433.7454 122.02,462.8979 122.02,481.5479 " fill="none" id="chat-GMN18" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><!--MD5=[46f5c73525c7e03cf40bcaef55b49c09]
 @startuml
 skinparam {
   shadowing false
   componentStyle rectangle
   defaultTextAlignment center
+  backgroundcolor transparent  <- - Add this line
 }
 
 actor "User" as user
@@ -55,6 +56,7 @@ skinparam {
   shadowing false
   componentStyle rectangle
   defaultTextAlignment center
+  backgroundcolor transparent  <- - Add this line
 }
 
 actor "User" as user
