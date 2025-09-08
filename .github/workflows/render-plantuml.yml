@@ -17,7 +17,7 @@ jobs:
       - name: Render PlantUML Diagrams
         uses: holowinski/plantuml-github-action@1.2021.1
         with:
-          args: -tsvg -o diagrams/ **/*.puml
+          args: -tsvg -o svg/ **/*.puml
           
       - name: Commit rendered diagrams
         uses: stefanzweifel/git-auto-commit-action@v5
