@@ -3,35 +3,37 @@ skinparam {
   shadowing false
   componentStyle rectangle
   defaultTextAlignment center
-  backgroundcolor transparent  <-- Add this line
+  backgroundcolor transparent
 }
 
-actor "User" as user
+rectangle "Overall System" #FFFFFF { ' <-- #FFFFFF sets background to white
+  actor "User" as user
 
-cloud "Google Cloud Run" as cloud {
-  component "mcp-server" as mcp_server {
-    [fastmcp + htmx]
+  cloud "Google Cloud Run" as cloud {
+    component "mcp-server" as mcp_server {
+      [fastmcp + htmx]
+    }
+
+    component "chat" as chat {
+      [fastapi + htmx]
+      [Google.genai]
+    }
+
+    component "dashboard" as dashboard {
+      [fastapi + htmx]
+    }
   }
 
-  component "chat" as chat {
-    [fastapi + htmx]
-    [Google.genai]
-  }
+  ' Interactions
+  user --> dashboard : "Accesses"
+  user --> chat : "Interacts with\n(standalone on /)"
+  dashboard -left-> chat : "Aggregates chat fragment\nfrom /chat"
+  chat -up-> mcp_server : "Connects to\n/mcp route"
+  dashboard -left-> chat : "Rewrites htmx URLs\n(client-side aggregation)"
 
-  component "dashboard" as dashboard {
-    [fastapi + htmx]
-  }
-}
-
-' Interactions
-user --> dashboard : "Accesses"
-user --> chat : "Interacts with\n(standalone on /)"
-dashboard -left-> chat : "Aggregates chat fragment\nfrom /chat route"
-chat -up-> mcp_server : "Connects to\n/mcp route"
-dashboard -left-> chat : "Rewrites htmx URLs\n(client-side aggregation)"
-
-note bottom of chat
-Serves index.html on /
-Fragment served on /chat
-end note
+  note bottom of chat
+  Serves index.html on /
+  Fragment served on /chat
+  end note
+} ' End of "Overall System" rectangle
 @enduml
