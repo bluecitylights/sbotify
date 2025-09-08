@@ -51,40 +51,50 @@ uvicorn src.main:app --reload
 uvicorn chat.src.main:app --reload-dir chat\src --env-file .env
 ```
 
+```
+gcloud compute networks vpc-access connectors create sboPtify-connector \
+--region=europe-west4 \
+--network=default \
+--range="10.8.0.0/28"
+
+gcloud run services update sbotify-dashboard \
+--region=europe-west4 \
+--vpc-connector=sbotify-connector \
+--vpc-egress=all-traffic
+```
+
 ```plantuml
 @startuml
-skinparam {
-  shadowing false
-  componentStyle rectangle
-  defaultTextAlignment center
-}
-
-actor "User" as user
-
-cloud "Google Cloud Run" as cloud {
-  component "mcp-server" as mcp_server {
-    [fastmcp + htmx]
-  }
-
-  component "chat" as chat {
-    [fastapi + htmx]
-    [Google.genai]
-  }
-
-  component "dashboard" as dashboard {
-    [fastapi + htmx]
-  }
-}
-
-' Interactions
-user --> dashboard : "Accesses"
-user --> chat : "Interacts with directly\n(standalone)"
-dashboard -left-> chat : "Loads chat fragment\nfrom /chat route"
-chat -up-> mcp_server : "Connects to\n(via Cloud Run)"
-
-note bottom of chat
-Can run stand-alone on /chat route
-end note
-
+Bob -> Alice : hello
 @enduml
+```
+
+
+```mermaid
+
+%%{init: {'theme': 'neutral'}}%%
+graph TD
+    subgraph "Google Cloud Run"
+        direction LR
+        mcp_server["mcp-server<br/>(fastmcp + htmx)"]
+        chat["chat<br/>(fastapi + htmx)<br/>(Google.genai)"]
+        dashboard["dashboard<br/>(fastapi + htmx)"]
+    end
+
+    User[User]
+    User -- "Accesses" --> dashboard
+    User -- "Interacts with (standalone on /)" --> chat
+
+    dashboard -- "Aggregates chat fragment from /chat" --> chat
+    dashboard -- "Rewrites htmx URLs (client-side aggregation)" --> chat
+    chat -- "Connects to /mcp route" --> mcp_server
+
+    style chat fill:#f9f,stroke:#333,stroke-width:2px
+    style dashboard fill:#f9f,stroke:#333,stroke-width:2px
+    style mcp_server fill:#f9f,stroke:#333,stroke-width:2px
+
+    subgraph "Note"
+        direction TB
+        note1[chat serves index.html on /<br/>Fragment served on /chat]
+    end
 ```
