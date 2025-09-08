@@ -49,7 +49,7 @@ steps:
       # Conditionally add the CHAT_API_URL for the 'dashboard' service only
       if [ "${_SERVICE}" == "${_DASHBOARD_SERVICE}" ]; then
         echo "Adding CHAT_API_URL to the dashboard service environment variables."
-        common_flags+=" --update-env-vars=CHAT_API_URL=https://${_APP}-chat-${PROJECT_NUMBER}.${_REGION}.run.app"
+        common_flags+=" --update-env-vars=CHAT_API_URL=sbotify-chat.europe-west4.run.app"
       fi
 
       # Deploy based on IAP variable
