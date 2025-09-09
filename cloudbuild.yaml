@@ -13,16 +13,19 @@ steps:
         echo "No static assets needed for ${_SERVICE}. Skipping copy."
       fi
   id: 'prepare-static-assets'
-  waitFor: ['-'] # This step runs first
+  waitFor: ['-']
 
-# Build and push the Docker image
+# Build the Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', '${_IMAGE}', '${_SERVICE}']
+  id: 'docker-build'
   waitFor: ['prepare-static-assets']
 
 # Push the Docker image to Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', '${_IMAGE}']
+  id: 'docker-push'
+  waitFor: ['docker-build']
 
 # Initialize and apply Terraform
 - name: 'hashicorp/terraform:1.6'
@@ -86,6 +89,7 @@ steps:
         echo "Deploying without IAP..."
         gcloud run deploy ${_APP}-${_SERVICE} $common_flags
       fi
+  id: 'gcloud-deploy'
   waitFor: ['terraform-deploy']
 
 images:
@@ -101,7 +105,7 @@ substitutions:
   _MAX_INSTANCES: '1'
   _SERVICE: ''
   _IAP: 'false'
-  _SKIP_GCLOUD_DEPLOY: 'true'  # Set to 'true' to use only Terraform, 'false' to use both
+  _SKIP_GCLOUD_DEPLOY: 'true'
 
 options:
   logging: CLOUD_LOGGING_ONLY
