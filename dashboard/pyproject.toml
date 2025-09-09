@@ -5,7 +5,17 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "beautifulsoup4>=4.13.5",
     "fastapi>=0.116.1",
-    "httpx>=0.28.1",
-    "uvicorn>=0.35.0",
+    "httpx>=0.28.1"
 ]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-mock",
+    "uvicorn",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
