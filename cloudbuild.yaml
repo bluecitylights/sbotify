@@ -39,7 +39,7 @@ steps:
         -out=tfplan
       terraform apply -auto-approve tfplan
   id: 'terraform-deploy'
-  waitFor: ['gcr.io/cloud-builders/docker']
+  waitFor: ['docker-push']
 
 # Optional: Deploy with gcloud run (keeping for backward compatibility)
 # This step will be skipped if _SKIP_GCLOUD_DEPLOY is set to 'true'
