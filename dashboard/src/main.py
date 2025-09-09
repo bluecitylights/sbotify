@@ -1,11 +1,11 @@
-from fastapi import FastAPI, HTTPException, Request, APIRouter
+import os
+import uvicorn
+import httpx
+from fastapi import FastAPI, HTTPException, Request, APIRouter, Response
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
-from src.routers import proxy_router
-import os
-import httpx
-import uvicorn
+from src.routers.proxy_router import router as proxy_router_instance, rewrite_urls
 import logging
 
 # Set up basic logging
@@ -44,7 +44,7 @@ static_dir.mkdir(exist_ok=True)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Include the proxy router
-app.include_router(proxy_router, tags=["Proxy"])
+app.include_router(proxy_router_instance, tags=["Proxy"])
 
 @app.get("/", response_class=HTMLResponse, name="main_dashboard")
 async def main_dashboard(request: Request):
@@ -65,16 +65,21 @@ async def main_dashboard(request: Request):
 @app.get("/chat", response_class=HTMLResponse)
 async def get_chat_app():
     """
-    Connects to the chat server to fetch the chat application HTML fragment.
+    Connects to the chat server to fetch the chat application HTML fragment and rewrites HTMX URLs.
+    This acts as a dedicated proxy for the chat app.
     """
-    # Define the URL of your chat API server.
     chat_api_url = f"{CHAT_API_URL}/ui/chat"
 
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(chat_api_url)
             response.raise_for_status()
-            return HTMLResponse(content=response.text, status_code=response.status_code)
+            
+            # Use the imported rewrite_urls function directly
+            rewritten_content = rewrite_urls(response.text, "chat")
+            
+            return HTMLResponse(content=rewritten_content, status_code=response.status_code)
+            
     except httpx.HTTPStatusError as e:
         logger.error(f"HTTP Status Error: {e.response.status_code} - {e.response.text}")
         return HTMLResponse(
@@ -93,7 +98,6 @@ async def get_chat_app():
             "An unexpected error occurred while fetching the chat app.",
             status_code=500
         )
-
 
 @app.get("/dummy-project", response_class=HTMLResponse)
 async def get_dummy_project_app():
