@@ -38,10 +38,19 @@ dummy_project_fragment = """
 
 # Create the static directory if it doesn't exist
 static_dir = BASE_DIR / "static"
-static_dir.mkdir(exist_ok=True)
+# --- Dynamic Path Resolution for Static Files ---
+# We try the production path first, as that is the intended final environment.
+# The local development path becomes the fallback.
+try:
+    # This path is correct for the Docker container.
+    print("Mounting static files from 'static' directory.")
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+except RuntimeError:
+    # If the above path fails, we assume we are in local development
+    # where the static directory is one level up.
+    print("Falling back to ../static for static files.")
+    app.mount("/static", StaticFiles(directory="../static"), name="static")
 
-# Mount the static files directory
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Include the proxy router
 app.include_router(proxy_router_instance, tags=["Proxy"])

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sbotify Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/styles.css">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -35,6 +36,15 @@
             >
                 <span class="mr-3">📦</span>
                 Dummy Project
+            </button>
+            <button 
+                class="w-full text-left flex items-center px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
+                hx-get="/info-panel"
+                hx-target="#content-panel"
+                hx-trigger="click"
+            >
+                <span class="mr-3">ℹ️</span>
+                Info Panel
             </button>
         </nav>
     </div>
