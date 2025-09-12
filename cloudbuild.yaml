@@ -11,23 +11,6 @@ steps:
   id: 'docker-push'
   waitFor: ['docker-build']
 
-# Initialize and apply Terraform
-- name: 'hashicorp/terraform:1.6'
-  entrypoint: 'sh'
-  args:
-    - '-c'
-    - |
-      cd terraform
-      terraform init
-      terraform plan \
-        -var="project_id=${PROJECT_ID}" \
-        -var="region=${_REGION}" \
-        -var="image_tag=${SHORT_SHA}" \
-        -out=tfplan
-      terraform apply -auto-approve tfplan
-  id: 'terraform-deploy'
-  waitFor: ['docker-push']
-
 # Optional: Deploy with gcloud run (keeping for backward compatibility)
 # This step will be skipped if _SKIP_GCLOUD_DEPLOY is set to 'true'
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -36,11 +19,6 @@ steps:
   args:
     - '-c'
     - |
-      if [ "${_SKIP_GCLOUD_DEPLOY}" == "true" ]; then
-        echo "Skipping gcloud deployment - using Terraform instead"
-        exit 0
-      fi
-      
       # All services need these common flags. Use --update-env-vars for all.
       common_flags="--image=${_IMAGE} \
         --max-instances=${_MAX_INSTANCES} \
@@ -74,7 +52,7 @@ steps:
         gcloud run deploy ${_APP}-${_SERVICE} $common_flags
       fi
   id: 'gcloud-deploy'
-  waitFor: ['terraform-deploy']
+  waitFor: ['docker-push']
 
 images:
 - '${_IMAGE}'
@@ -89,7 +67,6 @@ substitutions:
   _MAX_INSTANCES: '1'
   _SERVICE: ''
   _IAP: 'false'
-  _SKIP_GCLOUD_DEPLOY: 'true'
 
 options:
   logging: CLOUD_LOGGING_ONLY
