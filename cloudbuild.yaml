@@ -1,25 +1,9 @@
 steps:
-# This step prepares the build context for services that require static assets.
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: bash
-  args:
-    - '-c'
-    - |
-      if [ "${_SERVICE}" == "${_CHAT_SERVICE}" ] || [ "${_SERVICE}" == "${_DASHBOARD_SERVICE}" ]; then
-        echo "Copying shared static assets for ${_SERVICE}..."
-        # Copy the 'static' folder into the service directory before building.
-        cp -r static "${_SERVICE}/"
-      else
-        echo "No static assets needed for ${_SERVICE}. Skipping copy."
-      fi
-  id: 'prepare-static-assets'
-  waitFor: ['-']
-
 # Build the Docker image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', '${_IMAGE}', '${_SERVICE}']
+  args: ['build', '-t', '${_IMAGE}', '-f', '${_SERVICE}/Dockerfile', '.']
   id: 'docker-build'
-  waitFor: ['prepare-static-assets']
+  waitFor: ['-']
 
 # Push the Docker image to Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
@@ -66,10 +50,10 @@ steps:
         --no-allow-unauthenticated \
         --ingress=internal"
       
-      # Conditionally add the GEMINI_API_KEY and MCP_SERVER_URL for the 'chat' service only
+      # Conditionally add the GEMINI_API_KEY and MCP_SERVER_URL_GCP for the 'chat' service only
       if [ "${_SERVICE}" == "${_CHAT_SERVICE}" ]; then
-        echo "Adding GEMINI_API_KEY and MCP_SERVER_URL to the chat service environment variables."
-        common_flags+=" --update-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY,MCP_SERVER_URL=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app"
+        echo "Adding GEMINI_API_KEY and MCP_SERVER_URL_GCP to the chat service environment variables."
+        common_flags+=" --update-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY,MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app"
       fi
       
       # Conditionally add the CHAT_API_URL for the 'dashboard' service only

@@ -1,46 +1,8 @@
 services:
-  prepare-assets:
-    image: busybox
-    volumes:
-      - .:/workspace
-    command: >
-      sh -c "
-      echo 'Starting static assets preparation...';
-      echo 'Working directory contents:';
-      ls -la /workspace/;
-      echo '';
-      if [ -d /workspace/static ]; then
-        echo 'Static directory found, copying to service directories...';
-        echo 'Copying static to chat/';
-        cp -r /workspace/static /workspace/chat/ && echo '✓ Successfully copied to chat/' || echo '✗ Failed to copy to chat/';
-        echo 'Copying static to dashboard/';
-        cp -r /workspace/static /workspace/dashboard/ && echo '✓ Successfully copied to dashboard/' || echo '✗ Failed to copy to dashboard/';
-        echo '';
-        echo 'Verifying copies:';
-        if [ -d /workspace/chat/static ]; then
-          echo '✓ chat/static exists';
-          echo 'Contents:' && ls -la /workspace/chat/static/;
-        else
-          echo '✗ chat/static missing';
-        fi
-        if [ -d /workspace/dashboard/static ]; then
-          echo '✓ dashboard/static exists';
-          echo 'Contents:' && ls -la /workspace/dashboard/static/;
-        else
-          echo '✗ dashboard/static missing';
-        fi
-      else
-        echo '⚠ No static directory found at /workspace/static';
-        echo 'Available directories:';
-        find /workspace -maxdepth 2 -type d -name '*static*' 2>/dev/null || echo 'No static directories found';
-      fi;
-      echo 'Static assets preparation complete.';
-      "
-
   mcp-server:
     build:
-      context: ./mcp-server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./mcp-server/Dockerfile
     ports:
       - "8081:8080"
     environment:
@@ -50,8 +12,10 @@ services:
 
   chat:
     build:
-      context: ./chat
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./chat/Dockerfile
+      # args:
+      #   SERVICE_DIR: chat
     ports:
       - "8082:8080"
     environment:
@@ -60,13 +24,17 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       - mcp-server
+      # mcp-server:
+      #   condition: service_healthy
     networks:
       - sbotify-network
 
   dashboard:
     build:
-      context: ./dashboard
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./dashboard/Dockerfile
+      args:
+        SERVICE_DIR: dashboard
     ports:
       - "8080:8080"
     environment:
