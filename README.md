@@ -1,5 +1,16 @@
 # sbotify
 
+# Run locally with podman compose
+```
+podman compose up
+
+dashboard: localhost:8080
+dashboard api: localhost:8080/docs
+mcp-server: localhost:8081/mcp
+chat: localhost:8082
+chat api: localhost:80802/docs
+```
+
 # Run Client with stdio
 
 Add server.py to .env:
