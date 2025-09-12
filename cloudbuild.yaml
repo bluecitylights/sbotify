@@ -66,10 +66,10 @@ steps:
         --no-allow-unauthenticated \
         --ingress=internal"
       
-      # Conditionally add the GEMINI_API_KEY and MCP_SERVER_URL_GCP for the 'chat' service only
+      # Conditionally add the GEMINI_API_KEY and MCP_SERVER_URL for the 'chat' service only
       if [ "${_SERVICE}" == "${_CHAT_SERVICE}" ]; then
-        echo "Adding GEMINI_API_KEY and MCP_SERVER_URL_GCP to the chat service environment variables."
-        common_flags+=" --update-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY,MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app"
+        echo "Adding GEMINI_API_KEY and MCP_SERVER_URL to the chat service environment variables."
+        common_flags+=" --update-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY,MCP_SERVER_URL=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app"
       fi
       
       # Conditionally add the CHAT_API_URL for the 'dashboard' service only

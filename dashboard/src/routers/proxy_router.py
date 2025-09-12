@@ -1,9 +1,9 @@
 import httpx
 from fastapi import APIRouter, Request, HTTPException, Response
 from fastapi.responses import HTMLResponse
+import logging
 import os
 import re
-import logging
 
 # Set up basic logging for this module
 logging.basicConfig(level=logging.INFO)
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 # This is an example of an internal service, not exposed to the public internet.
 # In a real-world scenario, this might be a private URL or an internal Docker service name.
-CHAT_INTERNAL_URL = os.environ.get("CHAT_INTERNAL_URL", "http://127.0.0.1:8080")
+CHAT_INTERNAL_URL = os.environ.get("CHAT_API_URL", "http://chat:8080")
 
 SERVICE_URLS = {
     "chat": CHAT_INTERNAL_URL,
@@ -26,7 +26,7 @@ def rewrite_urls(html_content: str, service: str) -> str:
     proxy_prefix = f"/{service}-proxy"
     
     # Regex to find URLs in hx-get, hx-post, href, src, and action attributes
-    # This is a simplified regex and may need to be expanded for a production application
+    # The regex is non-greedy, so it finds the shortest match for the URL.
     rewritten_content = re.sub(
         r'(hx-get|hx-post|hx-put|hx-delete|hx-patch|hx-swap-oob|href|src|action)=(["\'])(/.*?)["\']',
         lambda m: f'{m.group(1)}={m.group(2)}{proxy_prefix}{m.group(3)}{m.group(2)}',
@@ -34,7 +34,8 @@ def rewrite_urls(html_content: str, service: str) -> str:
     )
     return rewritten_content
 
-@router.api_route("/{service}-proxy/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
+@router.get("/{service}-proxy/{path:path}")
+@router.post("/{service}-proxy/{path:path}")
 async def generic_proxy(service: str, path: str, request: Request):
     """
     Generic proxy endpoint that forwards a request to the appropriate backend service,
@@ -49,7 +50,7 @@ async def generic_proxy(service: str, path: str, request: Request):
     headers = {key: value for key, value in request.headers.items() if key.lower() not in ["host", "authorization"]}
     
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             proxy_response = await client.request(
                 method=request.method,
                 url=target_url,
@@ -70,6 +71,8 @@ async def generic_proxy(service: str, path: str, request: Request):
             return Response(content=proxy_response.content, status_code=proxy_response.status_code, headers=proxy_response.headers)
 
     except httpx.HTTPStatusError as e:
+        logger.error(f"Backend service returned an error: {e.response.status_code} - {e.response.text}")
         raise HTTPException(status_code=e.response.status_code, detail=f"Backend service returned an error: {e.response.text}")
     except httpx.RequestError as e:
+        logger.error(f"Could not connect to backend service: {e}")
         raise HTTPException(status_code=503, detail=f"Could not connect to backend service: {e}")

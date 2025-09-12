@@ -71,7 +71,7 @@ resource "google_cloud_run_service" "chat" {
           container_port = 8080
         }
         env {
-          name  = "MCP_SERVER_URL_GCP"
+          name  = "MCP_SERVER_URL"
           value = google_cloud_run_service.mcp_server.status[0].url
         }
         # Keep existing GEMINI_API_KEY from Secret Manager (handled by your current setup)
