@@ -75,6 +75,7 @@ dependencies = [
     { name = "beautifulsoup4" },
     { name = "fastapi" },
     { name = "httpx" },
+    { name = "uvicorn" },
 ]
 
 [package.dev-dependencies]
@@ -82,7 +83,6 @@ dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-mock" },
-    { name = "uvicorn" },
 ]
 
 [package.metadata]
@@ -90,6 +90,7 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.13.5" },
     { name = "fastapi", specifier = ">=0.116.1" },
     { name = "httpx", specifier = ">=0.28.1" },
+    { name = "uvicorn", specifier = ">=0.35.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -97,7 +98,6 @@ dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-mock" },
-    { name = "uvicorn" },
 ]
 
 [[package]]
