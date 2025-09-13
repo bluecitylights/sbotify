@@ -8,14 +8,14 @@ dependencies = [
     "beautifulsoup4>=4.13.5",
     "fastapi>=0.116.1",
     "httpx>=0.28.1"
+    "uvicorn",
 ]
 
 [dependency-groups]
 dev = [
     "pytest",
     "pytest-mock",
-    "pytest-asyncio",
-    "uvicorn",
+    "pytest-asyncio"
 ]
 
 [tool.pytest.ini_options]
