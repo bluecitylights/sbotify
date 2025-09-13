@@ -9,6 +9,9 @@ RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
 # Set the working directory inside the container
 WORKDIR /app
 
+# Change ownership of the /app directory to appuser
+RUN chown -R appuser:appuser /app
+
 # Copy dependency files and run.sh as root
 COPY ${SERVICE_DIR}/pyproject.toml .
 COPY ${SERVICE_DIR}/uv.lock .
