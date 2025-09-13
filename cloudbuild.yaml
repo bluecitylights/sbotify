@@ -1,9 +1,24 @@
 steps:
-# Build the Docker image
+# Run tests before building
+- name: 'python:3.13-slim'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      cd ${_SERVICE}
+      # Install uv for fast dependency management
+      pip install uv
+      # Install dependencies and run tests
+      uv sync
+      uv run pytest --junitxml=test-results.xml --cov=src
+  id: 'run-tests'
+  waitFor: ['-']
+
+# Build the Docker image (only if tests pass)
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', '${_IMAGE}', '-f', '${_SERVICE}/Dockerfile', '.']
   id: 'docker-build'
-  waitFor: ['-']
+  waitFor: ['run-tests']
 
 # Push the Docker image to Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
