@@ -1,30 +1,40 @@
 steps:
-# This step prepares the build context for services that require static assets.
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: bash
+# Run tests before building
+# Run tests before building
+- name: 'python:3.13-slim'
+  entrypoint: 'bash'
   args:
     - '-c'
     - |
-      if [ "${_SERVICE}" == "chat" ] || [ "${_SERVICE}" == "dashboard" ]; then
-        echo "Copying shared static assets for ${_SERVICE}..."
-        # Copy the 'static' folder into the service directory before building.
-        cp -r static "${_SERVICE}/"
+      set -e
+      cd ${_SERVICE}
+      # Conditionally run tests only for the 'chat' service
+      if [ "${_SERVICE}" == "chat" -o "${_SERVICE}" == "dashboard" ]; then
+          /usr/local/bin/python -m pip install uv
+          /usr/local/bin/uv venv --seed
+          source .venv/bin/activate
+          uv sync
+          uv run pytest --verbose --tb=short
       else
-        echo "No static assets needed for ${_SERVICE}. Skipping copy."
+          echo "Skipping tests for service ${_SERVICE} as none are defined."
       fi
-  id: 'prepare-static-assets'
-  waitFor: ['-'] # This step runs first
+  id: 'run-tests'
+  waitFor: ['-']
 
-# Build and push the Docker image
+# Build the Docker image (only if tests pass)
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', '${_IMAGE}', '${_SERVICE}']
-  waitFor: ['prepare-static-assets']
+  args: ['build', '-t', '${_IMAGE}', '-f', '${_SERVICE}/Dockerfile', '.']
+  id: 'docker-build'
+  waitFor: ['run-tests']
 
 # Push the Docker image to Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', '${_IMAGE}']
+  id: 'docker-push'
+  waitFor: ['docker-build']
 
-# Deploy the image to Cloud Run with conditional flags
+# Optional: Deploy with gcloud run (keeping for backward compatibility)
+# This step will be skipped if _SKIP_GCLOUD_DEPLOY is set to 'true'
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   secretEnv: ['GEMINI_API_KEY']
   entrypoint: bash
@@ -36,16 +46,22 @@ steps:
         --max-instances=${_MAX_INSTANCES} \
         --region=${_REGION} \
         --platform=managed \
-        --update-env-vars=MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app \
         --service-account=${_APP}-${_SERVICE}-user@${PROJECT_ID}.iam.gserviceaccount.com \
-        --no-allow-unauthenticated"
+        --no-allow-unauthenticated \
+        --ingress=internal"
       
-      # Conditionally add the GEMINI_API_KEY for the 'chat' service only
-      if [ "${_SERVICE}" == "chat" ]; then
-        echo "Adding GEMINI_API_KEY to the chat service environment variables."
-        common_flags+=" --update-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY"
+      # Conditionally add the GEMINI_API_KEY and MCP_SERVER_URL_GCP for the 'chat' service only
+      if [ "${_SERVICE}" == "${_CHAT_SERVICE}" ]; then
+        echo "Adding GEMINI_API_KEY and MCP_SERVER_URL_GCP to the chat service environment variables."
+        common_flags+=" --update-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY,MCP_SERVER_URL_GCP=https://${_APP}-${_MCP_SERVER}-${PROJECT_NUMBER}.${_REGION}.run.app"
       fi
-        
+      
+      # Conditionally add the CHAT_API_URL for the 'dashboard' service only
+      if [ "${_SERVICE}" == "${_DASHBOARD_SERVICE}" ]; then
+        echo "Adding CHAT_API_URL to the dashboard service environment variables."
+        common_flags+=" --update-env-vars=CHAT_API_URL=https://${_APP}-${_CHAT_SERVICE}-${PROJECT_NUMBER}.${_REGION}.run.app"
+      fi
+
       # Deploy based on IAP variable
       if [ "${_IAP}" == "true" ]; then
         # IAP requires gcloud beta and specific flags
@@ -57,6 +73,8 @@ steps:
         echo "Deploying without IAP..."
         gcloud run deploy ${_APP}-${_SERVICE} $common_flags
       fi
+  id: 'gcloud-deploy'
+  waitFor: ['docker-push']
 
 images:
 - '${_IMAGE}'
@@ -66,6 +84,8 @@ substitutions:
   _IMAGE: '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_APP}/${_SERVICE}:${SHORT_SHA}'
   _APP: 'sbotify'
   _MCP_SERVER: 'mcp-server'
+  _CHAT_SERVICE: 'chat'
+  _DASHBOARD_SERVICE: 'dashboard'
   _MAX_INSTANCES: '1'
   _SERVICE: ''
   _IAP: 'false'

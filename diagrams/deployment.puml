@@ -1,0 +1,44 @@
+@startuml
+skinparam {
+  shadowing false
+  componentStyle rectangle
+  defaultTextAlignment center
+  backgroundcolor transparent
+  rectangle<<whitebox>> {
+    backgroundcolor white
+    linecolor white
+    roundcorner 20
+  }
+}
+
+rectangle "Overall System" <<whitebox>> {
+  actor "User" as user
+
+  cloud "Google Cloud Run" as cloud {
+    component "mcp-server" as mcp_server {
+      [fastmcp + htmx]
+    }
+
+    component "chat" as chat {
+      [fastapi + htmx]
+      [Google.genai]
+    }
+
+    component "dashboard" as dashboard {
+      [fastapi + htmx]
+    }
+  }
+
+  ' Interactions
+  user --> dashboard : "Accesses"
+  user --> chat : "Interacts with\n(standalone on /)"
+  dashboard -left-> chat : "Aggregates chat fragment\nfrom /chat"
+  chat -up-> mcp_server : "Connects to\n/mcp route"
+  dashboard -left-> chat : "Rewrites htmx URLs\n(client-side aggregation)"
+
+  note bottom of chat
+  Serves index.html on /
+  Fragment served on /chat
+  end note
+}
+@enduml

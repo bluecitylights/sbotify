@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sbotify Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen">
+    <div class="flex flex-col w-64 bg-gray-800 text-white shadow-lg">
+        <div class="flex items-center justify-center h-16 bg-gray-900 text-xl font-bold">
+            Sbotify
+        </div>
+        <nav class="flex-1 px-2 py-4 space-y-2">
+            <button 
+                class="w-full text-left flex items-center px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
+                hx-get="/chat"
+                hx-target="#content-panel"
+                hx-trigger="click"
+            >
+                <span class="mr-3">💬</span>
+                Chat App
+            </button>
+            <button 
+                class="w-full text-left flex items-center px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
+                hx-get="/dummy-project"
+                hx-target="#content-panel"
+                hx-trigger="click"
+            >
+                <span class="mr-3">📦</span>
+                Dummy Project
+            </button>
+            <button 
+                class="w-full text-left flex items-center px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
+                hx-get="/info-panel"
+                hx-target="#content-panel"
+                hx-trigger="click"
+            >
+                <span class="mr-3">ℹ️</span>
+                Info Panel
+            </button>
+        </nav>
+    </div>
+    <main id="content-panel" class="flex-1 p-6">
+        <div class="p-8 bg-white rounded-lg shadow-md">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">Welcome to the Sbotify Dashboard</h1>
+            <p class="text-gray-600">Click on a menu item to load the corresponding application fragment using HTMX.</p>
+        </div>
+    </main>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</body>
+</html>
