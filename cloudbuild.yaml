@@ -1,16 +1,23 @@
 steps:
 # Run tests before building
+# Run tests before building
 - name: 'python:3.13-slim'
   entrypoint: 'bash'
   args:
     - '-c'
     - |
+      set -e
       cd ${_SERVICE}
-      # Install uv for fast dependency management
-      pip install uv
-      # Install dependencies and run tests
-      uv sync
-      uv run pytest --verbose --tb=short
+      # Conditionally run tests only for the 'chat' service
+      if [ "${_SERVICE}" == "chat" -o "${_SERVICE}" == "dashboard" ]; then
+          /usr/local/bin/python -m pip install uv
+          /usr/local/bin/uv venv --seed
+          source .venv/bin/activate
+          uv sync
+          uv run pytest --verbose --tb=short
+      else
+          echo "Skipping tests for service ${_SERVICE} as none are defined."
+      fi
   id: 'run-tests'
   waitFor: ['-']
 
