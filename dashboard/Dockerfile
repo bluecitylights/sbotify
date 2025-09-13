@@ -6,15 +6,21 @@ ARG SERVICE_DIR=dashboard
 # Create a non-root user and group
 RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
 
-
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy dependency files first to leverage Docker's build cache
+# Copy dependency files and run.sh as root
 COPY ${SERVICE_DIR}/pyproject.toml .
 COPY ${SERVICE_DIR}/uv.lock .
+COPY ${SERVICE_DIR}/run.sh .
 
-# Install uv and sync dependencies. This step is cached.
+# Make the run.sh script executable while still running as root
+RUN chmod +x run.sh
+
+# Switch to the non-root user for security
+USER appuser
+
+# Install uv and sync dependencies as the new user.
 RUN pip install uv
 RUN uv sync
 
@@ -27,11 +33,5 @@ COPY ${SERVICE_DIR}/. .
 # Expose the application port
 EXPOSE 8080
 
-
-RUN ls -l
-
-USER appuser
-
-# Make the script executable
-RUN chmod +x run.sh
+# Set the entrypoint to the run.sh script
 ENTRYPOINT ["./run.sh"]
