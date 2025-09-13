@@ -28,9 +28,9 @@ EXPOSE 8080
 
 
 RUN ls -l
+RUN chmod +x run.sh
 
-USER appuser
 
 # Make the script executable
-RUN chmod +x run.sh
+USER appuser
 ENTRYPOINT ["./run.sh"]
