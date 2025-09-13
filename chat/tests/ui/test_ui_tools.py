@@ -2,6 +2,7 @@
 
 import pytest
 from fastapi.testclient import TestClient
+import re
 
 # The test function. Note that no fixtures are defined here;
 # they are all provided by conftest.py.
@@ -20,13 +21,13 @@ def test_get_available_resources_html(test_client: TestClient):
     
     # 3. Check for expected content in the HTML response.
     html_content = response.text
-    
+
     # Verify the headings are present.
-    assert "<h3>Available Tools</h3>" in html_content
-    assert "<h3>Available Resources</h3>" in html_content
-    assert "<h3>Available Prompts</h3>" in html_content
+    assert re.search(r'<h3[^>]*>Available Tools</h3>', html_content)
+    assert re.search(r'<h3[^>]*>Available Resources</h3>', html_content)
+    assert re.search(r'<h3[^>]*>Available Prompts</h3>', html_content)
     
     # Verify that the mocked tool, resource, and prompt names are in the HTML.
-    # assert '<span class="tool-badge">mock_tool</span>' in html_content
-    # assert '<span class="resource-badge">mock_resource</span>' in html_content
-    # assert '<span class="prompt-badge">mock_prompt</span>' in html_content
+    assert 'mock_tool' in html_content
+    assert 'mock_resource' in html_content
+    assert 'mock_prompt' in html_content
