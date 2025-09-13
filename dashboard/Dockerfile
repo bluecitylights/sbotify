@@ -20,9 +20,14 @@ RUN chmod +x run.sh
 # Switch to the non-root user for security
 USER appuser
 
-# Install uv and sync dependencies as the new user.
-RUN pip install uv
-RUN uv sync
+# Create a virtual environment as the new user in a writable location
+RUN python -m venv .venv
+
+# Install uv into the virtual environment using its own pip
+RUN ./.venv/bin/pip install uv
+
+# Sync dependencies using uv, which is now in the venv
+RUN ./.venv/bin/uv sync
 
 # Copy the static folder from the build context (root/static)
 COPY static ./static
