@@ -1,0 +1,26 @@
+name: Render PlantUML Diagrams
+
+on:
+  push:
+    branches:
+      - dashboard
+
+jobs:
+  render-diagrams:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # <-- Add this line
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Render PlantUML Diagrams
+        uses: holowinski/plantuml-github-action@1.2021.1
+        with:
+          args: -tsvg -o svg/ **/*.puml
+          
+      - name: Commit rendered diagrams
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: '🎨 Rendered PlantUML diagrams'
+          file_pattern: 'diagrams/*.svg'

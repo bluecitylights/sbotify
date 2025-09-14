@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="547px" preserveAspectRatio="none" style="width:728px;height:547px;background:#00000000;" version="1.1" viewBox="0 0 728 547" width="728px" zoomAndPan="magnify"><defs/><g><!--MD5=[c11e67c027fcfd2c21f9c50b46c079bf]
+cluster Overall System--><rect fill="#FFFFFF" height="534" rx="10" ry="10" style="stroke:#000000;stroke-width:1.5;" width="714" x="7" y="7"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="328" y="21.9951">«whitebox»</text><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="104" x="312" y="38.292">Overall System</text><!--MD5=[bfeb4e40a9e05244ea0843bb1cef058f]
+cluster cloud--><path d="M84.0644,80.6232 C94.2496,57.0158 116.3075,56.7489 129.2709,77.8118 C143.386,56.2058 161.7189,58.3187 175.2481,78.4572 C189.2451,54.6957 203.5706,57.6842 219.5477,76.3918 C231.3377,61.1791 244.7929,58.3704 255.7903,77.2347 C267.0041,56.1187 289.4583,48.8354 304.352,73.3155 C313.1886,56.39 328.7044,53.9365 340.7267,69.7793 C355.3522,49.1769 368.8944,47.2878 383.0163,70.2679 C399.8189,52.321 414.4874,51.0847 427.8415,74.0466 C440.5122,56.3229 459.8826,53.7359 471.593,75.121 C481.0297,57.9494 499.7578,51.7679 511.5781,72.614 C528.3505,49.9819 542.4833,50.04 558.0575,73.8141 C568.149,55.9678 586.7378,54.5763 596.9712,73.6646 C614.3199,52.6436 629.6361,57.4835 641.6446,79.2414 C658.3733,57.365 673.991,56.5706 689,81 C691.1433,81.2167 692.3717,82.1631 691.2226,84.4817 C710.2402,98.7404 712.5054,114.2173 691.638,128.8494 C711.4946,137.1096 713.2061,155.7384 696.4074,168.4169 C718.5919,181.3659 721.5575,201.5456 697.1328,215.217 C713.82,228.1073 714.2682,239.5515 697.8248,253.0478 C721.6393,268.4366 721.8177,287.4263 695.4189,300.256 C715.3448,313.0281 711.3183,325.9924 695.2207,338.5782 C715.7201,352.5464 713.4587,367.0265 695.2998,381.0666 C713.0236,401.9181 712.6885,422.3067 682,430 C687.4798,428.6013 690.0841,430.9894 688.7809,436.5804 C672.3526,455.3981 655.5874,452.41 644.1741,431.0171 C632.1554,453.1048 613.6294,458.2103 597.2273,435.6233 C586.1047,452.4662 572.2232,452.2341 559.9403,436.9709 C549.6962,455.1801 529.3846,457.7092 517.6066,438.7164 C503.2848,462.9983 480.1529,455.321 470.0303,434.306 C461.362,456.6934 441.9303,455.7568 427.9974,440.1267 C413.5933,460.6846 397.9233,461.7854 383.1752,440.4951 C372.7332,459.0586 357.3809,457.26 347.1833,440.2479 C330.077,462.6761 312.4997,461.1238 301.1766,434.7913 C290.79,455.8115 277.4388,456.0633 262.3992,439.6056 C245.7873,456.9826 231.6685,456.9404 217.2011,437.0078 C203.0234,458.8371 185.0733,458.9973 170.866,437.0393 C156.2929,452.5164 144.895,449.3069 134.4583,432.3904 C113.8089,453.9831 88.9804,454.4511 77,423 C78.8355,422.3931 80.0313,423.0897 79.652,425.1787 C56.3502,415.4415 56.984,393.3268 76.9609,380.956 C56.9521,369.8327 56.0697,354.1612 73.9042,340.1996 C51.883,324.2088 53.2784,311.6105 76.5159,298.4511 C58.7413,286.7276 55.3068,272.8651 73.2739,258.2586 C52.7894,238.6848 57.9501,223.6813 79.7194,209.7183 C56.2943,199.9906 59.1211,180.9298 76.475,168.0286 C56.1026,152.4056 58.8157,140.1485 79.893,128.0712 C53.8573,110.6789 56.0179,87.2894 84,74 C86.8263,76.2143 87.5108,78.3479 84.0644,80.6232 " fill="#FFFFFF" style="stroke:#000000;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="123" x="321.5" y="91.9951">Google Cloud Run</text><!--MD5=[ccc7773d559245da41858703b8f516c8]
+cluster mcp_server--><rect fill="#FFFFFF" height="103" style="stroke:#000000;stroke-width:1.5;" width="187" x="349" y="117"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="78" x="403.5" y="131.9951">mcp-server</text><!--MD5=[2713c44a24528e2acb75c7ee2e7cc2e2]
+cluster chat--><rect fill="#FFFFFF" height="103" style="stroke:#000000;stroke-width:1.5;" width="316" x="349" y="303"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="31" x="491.5" y="317.9951">chat</text><!--MD5=[8fc3522a43f8c7199df5e09e5bb0188e]
+entity user--><ellipse cx="38" cy="148.5" fill="#FEFECE" rx="8" ry="8" style="stroke:#A80036;stroke-width:1.5;"/><path d="M38,156.5 L38,183.5 M25,164.5 L51,164.5 M38,183.5 L25,198.5 M38,183.5 L51,198.5 " fill="none" style="stroke:#A80036;stroke-width:1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="30" x="23" y="213.9951">User</text><path d="M272,485 L272,525.2656 L442,525.2656 L442,495 L432,485 L272,485 " fill="#FBFB77" style="stroke:#A80036;stroke-width:1.0;"/><path d="M432,485 L432,495 L442,495 L432,485 " fill="#FBFB77" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="130" x="278" y="502.0669">Serves index.html on /</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="149" x="278" y="517.1997">Fragment served on /chat</text><!--MD5=[40377559dc1ed26d7f134db8ca2c7e8f]
+entity fastmcp + htmx--><rect fill="#FEFECE" height="36.2969" style="stroke:#000000;stroke-width:1.5;" width="120" x="392" y="160"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="100" x="402" y="182.9951">fastmcp + htmx</text><!--MD5=[1273d9e6305ecb757378b3a75460ec5e]
+entity fastapi + htmx--><rect fill="#FEFECE" height="36.2969" style="stroke:#000000;stroke-width:1.5;" width="111" x="530.5" y="346"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="91" x="540.5" y="368.9951">fastapi + htmx</text><!--MD5=[e5c567fb8da6d34195e7fe71f5748ac4]
+entity Google.genai--><rect fill="#FEFECE" height="36.2969" style="stroke:#000000;stroke-width:1.5;" width="103" x="392.5" y="346"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="83" x="402.5" y="368.9951">Google.genai</text><!--MD5=[4b4aa12fd50f56bd13a7a0170aaccc36]
+entity dashboard--><rect height="36.2969" style="stroke:#000000;stroke-width:1.5;fill:none;" width="86" x="85" y="346"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="66" x="95" y="368.9951">dashboard</text><!--MD5=[2288421ecba2ff0bd84773682977ba0a]
+link user to dashboard--><path d="M53.06,209.8 C71.28,247.05 101.49,308.79 117.41,341.36 " fill="none" id="user-to-dashboard" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="119.66,345.94,119.2883,336.0982,117.4583,341.4508,112.1056,339.6209,119.66,345.94" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="52" x="86" y="267.5669">Accesses</text><!--MD5=[a45fd57224898287424758fa49246a52]
+link user to chat--><path d="M53.14,188.76 C86.43,209.64 169.17,258.45 246,279 C257.52,282.08 344.66,278.48 353,287 C355.8638,289.9275 358.0927,293.2605 359.7985,296.8578 C360.6514,298.6564 361.3735,300.5212 361.9789,302.4343 C362.0167,302.5539 362.0541,302.6737 362.091,302.7936 " fill="none" id="user-to-chat" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="362.091,302.7936,363.266,293.0151,360.6199,298.0149,355.6201,295.3688,362.091,302.7936" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="80" x="257.5" y="260.0669">Interacts with</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="101" x="247" y="275.1997">(standalone on /)</text><!--MD5=[a07bca55845fc5e292299c1820acb9f6]
+reverse link chat to dashboard--><path d="M348.6697,364 C348.4197,364 348.1645,364 347.9044,364 C343.7414,364 338.288,364 331.8367,364 C318.9341,364 302.0394,364 283.4913,364 C246.395,364 202.685,364 171.07,364 " fill="none" id="chat-backto-dashboard" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="348.6697,364,339.6697,360,343.6697,364,339.6697,368,348.6697,364" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="149" x="189.32" y="342.0669">Aggregates chat fragment</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="61" x="233.32" y="357.1997">from /chat</text><!--MD5=[a07bca55845fc5e292299c1820acb9f6]
+reverse link chat to dashboard--><path d="M348.935,384.0161 C348.8703,384.1274 348.8052,384.2386 348.7397,384.3497 C348.4776,384.7943 348.2086,385.2378 347.9326,385.6793 C346.8286,387.4453 345.6128,389.1791 344.2794,390.8175 C341.6125,394.0944 338.475,396.99 334.82,399 C321,406.61 208.12,402.87 192.82,399 C179.43,395.62 165.8,388.86 154.52,382.17 " fill="none" id="chat-backto-dashboard-1" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="348.935,384.0161,340.9539,389.7869,346.4223,388.3389,347.8703,393.8073,348.935,384.0161" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="115" x="206.32" y="380.0669">Rewrites htmx URLs</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="140" x="193.82" y="395.1997">(client-side aggregation)</text><!--MD5=[2198cc4f4ff5714f4781c68e3268183e]
+reverse link mcp_server to chat--><path d="M357,220.396 C357,220.6924 357,220.9899 357,221.2883 C357,221.8851 357,222.4859 357,223.0905 C357,227.9276 357,233.0098 357,238.2553 C357,248.7462 357,259.8903 357,271.0338 C357,276.6055 357,282.177 357,287.6666 C357,290.4115 357,293.1358 357,295.8294 C357,297.1762 357,298.5154 357,299.8456 C357,300.5107 357,301.1735 357,301.834 C357,302.1642 357,302.4939 357,302.8229 " fill="none" id="mcp_server-backto-chat" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="357,220.396,353,229.396,357,225.396,361,229.396,357,220.396" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="70" x="358" y="260.0669">Connects to</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="65" x="360.5" y="275.1997">/mcp route</text><!--MD5=[3137e4008ba47dd5508bcf5dfc87f792]
+link chat to GMN20--><path d="M357,406.4859 C357,406.863 357,407.2415 357,407.6212 C357,409.1401 357,410.6792 357,412.235 C357,437.1275 357,466.28 357,484.93 " fill="none" id="chat-GMN20" style="stroke:#A80036;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><!--MD5=[7754d64a49fc66f5e43f272de23e16ec]
+@startuml
+skinparam {
+  shadowing false
+  componentStyle rectangle
+  defaultTextAlignment center
+  backgroundcolor transparent
+  rectangle<<whitebox>> {
+    backgroundcolor white
+    linecolor white
+    roundcorner 20
+  }
+}
+
+rectangle "Overall System" <<whitebox>> {
+  actor "User" as user
+
+  cloud "Google Cloud Run" as cloud {
+    component "mcp-server" as mcp_server {
+      [fastmcp + htmx]
+    }
+
+    component "chat" as chat {
+      [fastapi + htmx]
+      [Google.genai]
+    }
+
+    component "dashboard" as dashboard {
+      [fastapi + htmx]
+    }
+  }
+
+  ' Interactions
+  user - -> dashboard : "Accesses"
+  user - -> chat : "Interacts with\n(standalone on /)"
+  dashboard -left-> chat : "Aggregates chat fragment\nfrom /chat"
+  chat -up-> mcp_server : "Connects to\n/mcp route"
+  dashboard -left-> chat : "Rewrites htmx URLs\n(client-side aggregation)"
+
+  note bottom of chat
+  Serves index.html on /
+  Fragment served on /chat
+  end note
+}
+@enduml
+
+@startuml
+skinparam {
+  shadowing false
+  componentStyle rectangle
+  defaultTextAlignment center
+  backgroundcolor transparent
+  rectangle<<whitebox>> {
+    backgroundcolor white
+    linecolor white
+    roundcorner 20
+  }
+}
+
+rectangle "Overall System" <<whitebox>> {
+  actor "User" as user
+
+  cloud "Google Cloud Run" as cloud {
+    component "mcp-server" as mcp_server {
+      [fastmcp + htmx]
+    }
+
+    component "chat" as chat {
+      [fastapi + htmx]
+      [Google.genai]
+    }
+
+    component "dashboard" as dashboard {
+      [fastapi + htmx]
+    }
+  }
+
+  user - -> dashboard : "Accesses"
+  user - -> chat : "Interacts with\n(standalone on /)"
+  dashboard -left-> chat : "Aggregates chat fragment\nfrom /chat"
+  chat -up-> mcp_server : "Connects to\n/mcp route"
+  dashboard -left-> chat : "Rewrites htmx URLs\n(client-side aggregation)"
+
+  note bottom of chat
+  Serves index.html on /
+  Fragment served on /chat
+  end note
+}
+@enduml
+
+PlantUML version 1.2021.01(Tue Feb 02 07:55:08 GMT 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

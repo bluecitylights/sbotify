@@ -1,7 +1,7 @@
 FROM python:3.13-slim
 
 # Build argument for service directory
-ARG SERVICE_DIR=chat
+ARG SERVICE_DIR=dashboard
 
 # Create a non-root user and group, and create their home directory
 RUN groupadd -r appuser && useradd -m --no-log-init -r -g appuser appuser

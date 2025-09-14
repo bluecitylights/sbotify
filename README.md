@@ -1,5 +1,16 @@
 # sbotify
 
+# Run locally with podman compose
+```
+podman compose up
+
+dashboard: localhost:8080
+dashboard api: localhost:8080/docs
+mcp-server: localhost:8081/mcp
+chat: localhost:8082
+chat api: localhost:80802/docs
+```
+
 # Run Client with stdio
 
 Add server.py to .env:
@@ -50,3 +61,22 @@ https://medium.com/google-cloud/using-google-identity-aware-proxy-iap-with-cloud
 uvicorn src.main:app --reload
 uvicorn chat.src.main:app --reload-dir chat\src --env-file .env
 ```
+
+```
+gcloud compute networks vpc-access connectors create sboPtify-connector \
+--region=europe-west4 \
+--network=default \
+--range="10.8.0.0/28"
+
+gcloud run services update sbotify-dashboard \
+--region=europe-west4 \
+--vpc-connector=sbotify-connector \
+--vpc-egress=all-traffic
+```
+
+```bash
+curl -H "Authorization: Bearer $(gcloud auth print-access-token)" https://sbotify-dashboard-912494315508.europe-west4.run.app/
+```
+
+# Diagrams
+![Deployment Diagram](./diagrams/svg/deployment.svg)
