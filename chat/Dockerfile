@@ -17,6 +17,9 @@ COPY ${SERVICE_DIR}/uv.lock .
 RUN pip install uv
 RUN uv sync
 
+RUN ls -l .venv/bin/uvicorn
+RUN ls -l .venv/bin/
+
 # Copy the static folder from the build context (root/static)
 COPY static ./static
 
