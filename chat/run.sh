@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo "--- Contents of /app ---"
+ls -la /app/.venv/bin/uvicorn
 ls -la /app/.venv/bin/
 echo "------------------------"
 
