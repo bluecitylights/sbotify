@@ -9,7 +9,7 @@ RUN groupadd -r appuser && useradd -m --no-log-init -r -g appuser appuser
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy all necessary files and source code as the root user.
+# Copy all necessary files and source code.
 COPY ${SERVICE_DIR}/pyproject.toml .
 COPY ${SERVICE_DIR}/uv.lock .
 COPY ${SERVICE_DIR}/run.sh .
@@ -23,15 +23,14 @@ RUN chown -R appuser:appuser /app /home/appuser
 # Switch to the non-root user for all subsequent commands.
 USER appuser
 
-# Create the virtual environment in its own command.
+# Step 1: Create the virtual environment in its own command.
 RUN python -m venv .venv
 
-# Install dependencies in a separate command.
-RUN ./.venv/bin/pip install uv && \
-    ./.venv/bin/uv sync
+# Step 2: Install dependencies in a separate command.
+RUN ./.venv/bin/pip install uv
 
-# Make the run.sh script executable.
-RUN chmod +x run.sh
+# Step 3: Sync dependencies and make the run script executable.
+RUN ./.venv/bin/uv sync && chmod +x run.sh
 
 # Expose the application port
 EXPOSE 8080
