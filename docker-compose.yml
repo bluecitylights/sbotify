@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: ./mcp-server/Dockerfile
+      args:
+        SERVICE_DIR: mcp-server
     ports:
       - "8081:8080"
     environment:
@@ -14,8 +16,8 @@ services:
     build:
       context: .
       dockerfile: ./chat/Dockerfile
-      # args:
-      #   SERVICE_DIR: chat
+      args:
+        SERVICE_DIR: chat
     ports:
       - "8082:8080"
     environment:
@@ -24,8 +26,6 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       - mcp-server
-      # mcp-server:
-      #   condition: service_healthy
     networks:
       - sbotify-network
 
