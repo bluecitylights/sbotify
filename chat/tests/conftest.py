@@ -36,7 +36,7 @@ def override_dependencies():
     
     app.dependency_overrides.clear()
 
-# The test client fixture
+# The test client fixture.
 @pytest.fixture(scope="session")
 def test_client():
     """Provides a TestClient for testing FastAPI endpoints."""

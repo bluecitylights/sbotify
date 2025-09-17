@@ -1,0 +1,34 @@
+name: CI/CD Base
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+      dockerfile:
+        required: true
+        type: string
+      folder:
+        required: true
+        type: string
+
+jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml
+    with:
+      folder: ${{ inputs.folder }}
+
+  build-and-push:
+    needs: tests
+    uses: ./.github/workflows/build-and-push.yml
+    with:
+      service: ${{ inputs.service }}
+      dockerfile: ${{ inputs.dockerfile }}
+
+  deploy:
+    needs: build-and-push
+    uses: ./.github/workflows/deploy.yml
+    with:
+      service: ${{ inputs.service }}
+      image: ${{ needs.build-and-push.outputs.image }}
