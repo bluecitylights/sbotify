@@ -12,6 +12,12 @@ on:
       - ".github/workflows/chat-ci-cd.yml"
 
 jobs:
+  debug-output:
+    needs: check-changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print folder-changed
+        run: echo "folder-changed = ${{ needs.check-changes.outputs.folder-changed }}"
   check-changes:
     uses: ./.github/workflows/check-changes.yml
     with:
