@@ -1,0 +1,45 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+      image:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+      - name: Deploy to Cloud Run
+        run: |
+          common_flags="--image=${{ inputs.image }} \
+            --max-instances=1 \
+            --region=${{ secrets.REGION }} \
+            --platform=managed \
+            --service-account=${{ secrets.APP }}-${{ inputs.service }}-user@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com \
+            --no-allow-unauthenticated \
+            --ingress=internal"
+
+          if [ "${{ inputs.service }}" == "chat" ]; then
+            common_flags+=" --update-env-vars=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
+          fi
+
+          if [ "${{ inputs.service }}" == "dashboard" ]; then
+            common_flags+=" --update-env-vars=CHAT_API_URL=https://${{ secrets.APP }}-chat-${{ secrets.PROJECT_NUMBER }}.${{ secrets.REGION }}.run.app"
+          fi
+
+          gcloud run deploy ${{ secrets.APP }}-${{ inputs.service }} $common_flags

@@ -15,85 +15,20 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-
-      - name: Install uv
-        run: pip install uv
-
-      - name: Run tests
-        run: |
-          cd ${{ inputs.folder }}
-          uv venv --seed
-          source .venv/bin/activate
-          uv sync
-          uv run pytest --verbose --tb=short
+    uses: ./.github/workflows/tests.yml
+    with:
+      folder: ${{ inputs.folder }}
 
   build-and-push:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
     needs: tests
-    outputs:
-      image: ${{ steps.build.outputs.image }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
-
-      - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ secrets.GCP_PROJECT }}
-
-      - id: build
-        run: |
-          IMAGE="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
-          docker build -t $IMAGE -f ${{ inputs.dockerfile }} .
-          docker push $IMAGE
-          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+    uses: ./.github/workflows/build-and-push.yml
+    with:
+      service: ${{ inputs.service }}
+      dockerfile: ${{ inputs.dockerfile }}
 
   deploy:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
     needs: build-and-push
-    steps:
-      - id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
-
-      - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ secrets.GCP_PROJECT }}
-
-      - name: Deploy to Cloud Run
-        run: |
-          IMAGE="${{ needs.build-and-push.outputs.image }}"
-          common_flags="--image=$IMAGE \
-            --max-instances=1 \
-            --region=${{ secrets.REGION }} \
-            --platform=managed \
-            --service-account=${{ secrets.APP }}-${{ inputs.service }}-user@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com \
-            --no-allow-unauthenticated \
-            --ingress=internal"
-
-          if [ "${{ inputs.service }}" == "chat" ]; then
-            common_flags+=" --update-env-vars=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
-          fi
-
-          if [ "${{ inputs.service }}" == "dashboard" ]; then
-            common_flags+=" --update-env-vars=CHAT_API_URL=https://${{ secrets.APP }}-chat-${{ secrets.PROJECT_NUMBER }}.${{ secrets.REGION }}.run.app"
-          fi
-
-          gcloud run deploy ${{ secrets.APP }}-${{ inputs.service }} $common_flags
+    uses: ./.github/workflows/deploy.yml
+    with:
+      service: ${{ inputs.service }}
+      image: ${{ needs.build-and-push.outputs.image }}
