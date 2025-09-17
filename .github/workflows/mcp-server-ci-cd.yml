@@ -1,0 +1,27 @@
+name: MCP Server CI/CD
+
+on:
+  pull_request:
+    paths:
+      - "mcp-server/**"
+      - ".github/workflows/mcp-server-ci-cd.yml"
+  push:
+    branches: [main]
+    paths:
+      - "mcp-server/**"
+      - ".github/workflows/mcp-server-ci-cd.yml"
+
+jobs:
+  check-changes:
+    uses: ./.github/workflows/check-changes.yml
+    with:
+      folder: mcp-server
+
+  call-base:
+    needs: check-changes
+    if: needs.check-changes.outputs.folder-changed == 'true'
+    uses: ./.github/workflows/workflow-base.yml
+    with:
+      service: mcp-server
+      dockerfile: mcp-server/Dockerfile
+      folder: mcp-server

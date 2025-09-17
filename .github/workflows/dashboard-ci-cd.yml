@@ -1,0 +1,27 @@
+name: Dashboard CI/CD
+
+on:
+  pull_request:
+    paths:
+      - "dashboard/**"
+      - ".github/workflows/dashboard-ci-cd.yml"
+  push:
+    branches: [main]
+    paths:
+      - "dashboard/**"
+      - ".github/workflows/dashboard-ci-cd.yml"
+
+jobs:
+  check-changes:
+    uses: ./.github/workflows/check-changes.yml
+    with:
+      folder: dashboard
+
+  call-base:
+    needs: check-changes
+    if: needs.check-changes.outputs.folder-changed == 'true'
+    uses: ./.github/workflows/workflow-base.yml
+    with:
+      service: dashboard
+      dockerfile: dashboard/Dockerfile
+      folder: dashboard

@@ -1,0 +1,27 @@
+name: Chat CI/CD
+
+on:
+  pull_request:
+    paths:
+      - "chat/**"
+      - ".github/workflows/chat-ci-cd.yml"
+  push:
+    branches: [main]
+    paths:
+      - "chat/**"
+      - ".github/workflows/chat-ci-cd.yml"
+
+jobs:
+  check-changes:
+    uses: ./.github/workflows/check-changes.yml
+    with:
+      folder: chat
+
+  call-base:
+    needs: check-changes
+    if: needs.check-changes.outputs.folder-changed == 'true'
+    uses: ./.github/workflows/workflow-base.yml
+    with:
+      service: chat
+      dockerfile: chat/Dockerfile
+      folder: chat
