@@ -18,6 +18,8 @@ jobs:
       folder-changed: ${{ steps.check.outputs.folder_changed }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 👈 Important: fetch full history
 
       - name: Check for folder or root changes
         id: check
