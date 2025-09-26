@@ -39,6 +39,10 @@ jobs:
 
   build-and-push:
     needs: tests
+    # 💡 FIX 4: Voeg permissies toe om Workload Identity authenticatie toe te staan.
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/build-and-push.yml
     with:
       service: ${{ inputs.service }}
@@ -50,11 +54,14 @@ jobs:
       GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       REGION: ${{ secrets.REGION }}
       APP: ${{ secrets.APP }}
-      
   deploy:
     needs: build-and-push
     # Draai de deploy alleen als de build succesvol was (niet overgeslagen)
     if: always() && needs.build-and-push.result == 'success'
+    # 💡 FIX 5: Voeg permissies toe om Workload Identity authenticatie toe te staan.
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/deploy.yml
     with:
       service: ${{ inputs.service }}
