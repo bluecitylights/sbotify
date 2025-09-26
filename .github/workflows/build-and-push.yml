@@ -20,7 +20,7 @@ jobs:
     # 2. VEILIGHEIDSFIX: Staat de job toe om te draaien op directe pushes OF interne Pull Requests,
     # zodat de GitHub secrets beschikbaar zijn.
     # U moet 'bluecitylights/sbotify' vervangen door uw werkelijke ORG/REPO_NAAM als deze anders is!
-    if: success() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == 'bluecitylights/sbotify')
+    if: success() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     
     # 3. JOB OUTPUT: Dit verzamelt de output van de 'build' stap.
