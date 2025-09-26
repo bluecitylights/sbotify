@@ -12,6 +12,18 @@ on:
       folder:
         required: true
         type: string
+    # 💡 FIX 1: De base workflow moet de secrets die hij nodig heeft van de aanroeper accepteren.
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      SERVICE_ACCOUNT_EMAIL:
+        required: true
+      GCP_PROJECT:
+        required: true
+      REGION:
+        required: true
+      APP:
+        required: true
 
 jobs:
   tests:
@@ -25,12 +37,25 @@ jobs:
     with:
       service: ${{ inputs.service }}
       dockerfile: ${{ inputs.dockerfile }}
+    # 💡 FIX 2: Stuur de secrets expliciet door naar de 'build-and-push' canvas.
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+      REGION: ${{ secrets.REGION }}
+      APP: ${{ secrets.APP }}
 
   deploy:
     needs: build-and-push
-    # 💡 DE FIX: De deploy job draait alleen als de 'build-and-push' job succesvol was.
+    # Draai de deploy alleen als de build succesvol was (niet overgeslagen)
     if: always() && needs.build-and-push.result == 'success'
     uses: ./.github/workflows/deploy.yml
     with:
       service: ${{ inputs.service }}
       image: ${{ needs.build-and-push.outputs.image }}
+    # Stuur secrets ook door naar deploy.yml, zodat deze kan authenticeren/deployen.
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+      REGION: ${{ secrets.REGION }}
