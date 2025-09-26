@@ -38,6 +38,3 @@ jobs:
       GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       REGION: ${{ secrets.REGION }}
       APP: ${{ secrets.APP }}
-      PROJECT_NUMBER: ${{ secrets.PROJECT_NUMBER }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-
