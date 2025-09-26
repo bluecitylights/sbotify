@@ -9,25 +9,52 @@ on:
       dockerfile:
         required: true
         type: string
+    # 1. WORKFLOW OUTPUT: Deze sectie exporteert de 'image' URL naar de aanroepende workflow (CI/CD Base).
+    outputs:
+      image:
+        description: "Full image URL created during the build and push."
+        value: ${{ jobs.build-and-push.outputs.image }}
 
 jobs:
   build-and-push:
-    # if: github.ref == 'refs/heads/main'
+    # 2. VEILIGHEIDSFIX: Staat de job toe om te draaien op directe pushes OF interne Pull Requests,
+    # zodat de GitHub secrets beschikbaar zijn.
+    # U moet 'bluecitylights/sbotify' vervangen door uw werkelijke ORG/REPO_NAAM als deze anders is!
+    if: success() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == 'bluecitylights/sbotify')
     runs-on: ubuntu-latest
+    
+    # 3. JOB OUTPUT: Dit verzamelt de output van de 'build' stap.
+    outputs:
+      image: ${{ steps.build.outputs.image }}
+      
     steps:
       - uses: actions/checkout@v4
-      - id: auth
+      
+      - name: Authenticate to GCP using Workload Identity
+        id: auth
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+          
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
-      - id: build
+          
+      - name: Build and Push Docker Image
+        id: build
         run: |
+          echo "Building image for service: ${{ inputs.service }}"
+          
           IMAGE="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
+          
+          # Configureer Docker voor Artifact Registry
+          gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev
+          
+          # Bouw en Push
           docker build -t $IMAGE -f ${{ inputs.dockerfile }} .
           docker push $IMAGE
+          
+          # Stuur de uiteindelijke image URL terug als output
           echo "image=$IMAGE" >> $GITHUB_OUTPUT
