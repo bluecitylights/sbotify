@@ -31,6 +31,11 @@ jobs:
       service: chat
       dockerfile: chat/Dockerfile
       folder: chat
+    # FIX: Voeg de benodigde OIDC-permissies toe aan de aanroepende job.
+    permissions:
+      id-token: write
+      contents: read
+    
     # Zorg ervoor dat SECRETS: perfect uitgelijnd is met USES: en WITH:
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
