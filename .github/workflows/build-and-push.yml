@@ -19,7 +19,6 @@ jobs:
   build-and-push:
     # 2. VEILIGHEIDSFIX: Staat de job toe om te draaien op directe pushes OF interne Pull Requests,
     # zodat de GitHub secrets beschikbaar zijn.
-    # U moet 'bluecitylights/sbotify' vervangen door uw werkelijke ORG/REPO_NAAM als deze anders is!
     if: success() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     
@@ -29,6 +28,15 @@ jobs:
       
     steps:
       - uses: actions/checkout@v4
+      
+      # --- NIEUWE DEBUG STAP ---
+      - name: Debug Security Check
+        run: |
+          echo "GITHUB REPOSITORY (BASE): ${{ github.repository }}"
+          echo "PULL REQUEST SOURCE (HEAD): ${{ github.event.pull_request.head.repo.full_name }}"
+          echo "EVENT NAME: ${{ github.event_name }}"
+          echo "IS INTERNAL PR: ${{ github.event.pull_request.head.repo.full_name == github.repository }}"
+      # --- EINDE DEBUG STAP ---
       
       - name: Authenticate to GCP using Workload Identity
         id: auth
