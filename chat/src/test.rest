@@ -4,7 +4,7 @@ POST {{host}}/chat HTTP/1.1
 content-type: application/json
 
 {
-    "name": "sample payload",
+    "name": "Sample payload",
     "time": "Wed, 21 Oct 2015 18:27:50 GMT"
 }
 
