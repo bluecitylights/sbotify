@@ -12,7 +12,7 @@ on:
       folder:
         required: true
         type: string
-    # 💡 FIX 1: De base workflow moet de secrets die hij nodig heeft van de aanroeper accepteren.
+    # 💡 FIX 1: De base workflow moet de complete set van secrets accepteren.
     secrets:
       WORKLOAD_IDENTITY_PROVIDER:
         required: true
@@ -24,6 +24,12 @@ on:
         required: true
       APP:
         required: true
+      # NIEUW: PROJECT_NUMBER is nodig voor het construeren van interne service URL's.
+      PROJECT_NUMBER:
+        required: true
+      # NIEUW: GEMINI_API_KEY is alleen nodig voor de 'chat' service, dus optioneel (false).
+      GEMINI_API_KEY:
+        required: false
 
 jobs:
   tests:
@@ -37,14 +43,14 @@ jobs:
     with:
       service: ${{ inputs.service }}
       dockerfile: ${{ inputs.dockerfile }}
-    # 💡 FIX 2: Stuur de secrets expliciet door naar de 'build-and-push' canvas.
+    # 💡 FIX 2: Stuur alle geheimen expliciet door naar de 'build-and-push' job.
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
       SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
       GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       REGION: ${{ secrets.REGION }}
       APP: ${{ secrets.APP }}
-
+      
   deploy:
     needs: build-and-push
     # Draai de deploy alleen als de build succesvol was (niet overgeslagen)
@@ -53,9 +59,12 @@ jobs:
     with:
       service: ${{ inputs.service }}
       image: ${{ needs.build-and-push.outputs.image }}
-    # Stuur secrets ook door naar deploy.yml, zodat deze kan authenticeren/deployen.
+    # 💡 FIX 3: Stuur alle geheimen expliciet door naar de 'deploy' job.
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
       SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
       GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       REGION: ${{ secrets.REGION }}
+      APP: ${{ secrets.APP }}
+      PROJECT_NUMBER: ${{ secrets.PROJECT_NUMBER }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
