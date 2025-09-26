@@ -31,3 +31,13 @@ jobs:
       service: chat
       dockerfile: chat/Dockerfile
       folder: chat
+    # 💡 FIX: Alle GitHub Secrets moeten expliciet worden doorgestuurd naar de herbruikbare workflow.
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+      REGION: ${{ secrets.REGION }}
+      APP: ${{ secrets.APP }}
+      PROJECT_NUMBER: ${{ secrets.PROJECT_NUMBER }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
