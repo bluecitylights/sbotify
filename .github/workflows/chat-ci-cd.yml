@@ -6,7 +6,7 @@ on:
       - "chat/**"
       - ".github/workflows/chat-ci-cd.yml"
   push:
-    branches: [main]
+    branches: ['*']
     paths:
       - "chat/**"
       - ".github/workflows/chat-ci-cd.yml"

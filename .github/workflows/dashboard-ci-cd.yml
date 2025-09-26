@@ -6,7 +6,7 @@ on:
       - "dashboard/**"
       - ".github/workflows/dashboard-ci-cd.yml"
   push:
-    branches: [main]
+    branches: ['*']
     paths:
       - "dashboard/**"
       - ".github/workflows/dashboard-ci-cd.yml"
