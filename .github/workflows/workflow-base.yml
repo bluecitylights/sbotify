@@ -28,6 +28,8 @@ jobs:
 
   deploy:
     needs: build-and-push
+    # 💡 DE FIX: De deploy job draait alleen als de 'build-and-push' job succesvol was.
+    if: always() && needs.build-and-push.result == 'success'
     uses: ./.github/workflows/deploy.yml
     with:
       service: ${{ inputs.service }}
