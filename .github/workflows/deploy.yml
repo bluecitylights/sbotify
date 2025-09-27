@@ -40,12 +40,22 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
       - name: Deploy to Cloud Run
         run: |
-          # Debug: Print the image input to verify it's being passed correctly
-          echo "🐛 DEBUG: Received image input: '${{ inputs.image }}'"
+          # Try to get image URL from job output first
+          IMAGE_FROM_OUTPUT="${{ inputs.image }}"
           
-          # Verify the image input is not empty
-          if [ -z "${{ inputs.image }}" ]; then
-            echo "❌ ERROR: Image input is empty!"
+          # If that's empty, construct it from the commit SHA
+          if [ -z "$IMAGE_FROM_OUTPUT" ]; then
+            echo "⚠️  WARNING: Image input is empty, constructing URL from commit SHA"
+            IMAGE_URL="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
+            echo "🔧 Constructed image URL: $IMAGE_URL"
+          else
+            IMAGE_URL="$IMAGE_FROM_OUTPUT"
+            echo "✅ Using image URL from output: $IMAGE_URL"
+          fi
+          
+          # Verify the image URL is not empty
+          if [ -z "$IMAGE_URL" ]; then
+            echo "❌ ERROR: Could not determine image URL!"
             exit 1
           fi
           
@@ -54,9 +64,8 @@ jobs:
           echo "🚀 Deploying service: $SERVICE_NAME"
           echo "🐳 Using image: ${{ inputs.image }}"
           
-          # Initialize array with flags only (not the service name)
+          # Initialize array with flags only (not the service name or image)
           deploy_flags=(
-            "--image=${{ inputs.image }}"
             "--region=${{ secrets.REGION }}"
             "--max-instances=1"
             "--platform=managed"
@@ -79,9 +88,5 @@ jobs:
             )
           fi
 
-          # Debug: Show the complete command that will be executed
-          echo "📋 Complete gcloud command will be:"
-          echo "gcloud run deploy $SERVICE_NAME ${deploy_flags[*]}"
-          
           # Deploy with service name as separate argument
-          gcloud run deploy "$SERVICE_NAME" "${deploy_flags[@]}"
+          gcloud run deploy "$SERVICE_NAME" "${deploy_flags[@]}" --image="$IMAGE_URL"

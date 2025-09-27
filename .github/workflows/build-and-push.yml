@@ -32,7 +32,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      image: ${{ steps.build.outputs.image }}
+      image: ${{ steps.save-image-url.outputs.image }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -52,11 +52,10 @@ jobs:
         run: gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev
         
       - name: Build and push Docker image
-        id: build
         run: |
           IMAGE_URL="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
           
-          echo "🐳 Building image: $IMAGE_URL"
+          echo "Building image: $IMAGE_URL"
           
           docker build \
             -f "${{ inputs.dockerfile }}" \
@@ -66,5 +65,20 @@ jobs:
           
           docker push "$IMAGE_URL"
           
+          # Save to file for artifact upload
+          echo "$IMAGE_URL" > image_url.txt
+          echo "Image built and pushed: $IMAGE_URL"
+          
+      - name: Upload image URL as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-url-${{ github.run_id }}
+          path: image_url.txt
+          retention-days: 1
+          
+      - name: Save image URL to output (backup method)
+        id: save-image-url
+        run: |
+          IMAGE_URL="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
           echo "image=$IMAGE_URL" >> $GITHUB_OUTPUT
-          echo "✅ Image built and pushed: $IMAGE_URL"
+          echo "Saved to output: $IMAGE_URL"
