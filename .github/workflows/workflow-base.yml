@@ -5,6 +5,7 @@ name: CI/CD Base Workflow
 permissions:
   contents: read
   id-token: write
+  packages: write # 💡 FIX: Toegevoegd om Docker-images naar Artifact Registry te pushen in de 'build-and-push' workflow.
 
 on:
   workflow_call:
@@ -16,6 +17,10 @@ on:
         required: true
         type: string
       folder:
+        required: true
+        type: string
+      # 💡 Toegevoegd voor robuustheid: Ref naam is vaak nodig voor checks of logica.
+      ref_name: 
         required: true
         type: string
     secrets:
