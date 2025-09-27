@@ -71,7 +71,6 @@ jobs:
             --platform linux/amd64 \
             -t ${{ steps.set-image-uri.outputs.IMAGE_URI }} \
             -f ${{ inputs.dockerfile }} \
-            ${{ inputs.folder }} # Gebruik de 'folder' input als build context
-      
+            .
       - name: Push Docker Image to Artifact Registry
         run: docker push ${{ steps.set-image-uri.outputs.IMAGE_URI }}
