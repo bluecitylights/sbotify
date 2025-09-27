@@ -56,10 +56,30 @@ jobs:
       GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       REGION: ${{ secrets.REGION }}
       APP: ${{ secrets.APP }}
+
+  # Add a debug job to see what outputs we're getting
+  debug-outputs:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug build-and-push outputs
+        run: |
+          echo "🐛 DEBUG: build-and-push job outputs:"
+          echo "needs.build-and-push.outputs.image = '${{ needs.build-and-push.outputs.image }}'"
+          echo "needs.build-and-push.result = '${{ needs.build-and-push.result }}'"
+          echo "🔍 All outputs from build-and-push:"
+          echo '${{ toJSON(needs.build-and-push.outputs) }}'
+          
+          # Test if the output exists and is not empty
+          if [ -z "${{ needs.build-and-push.outputs.image }}" ]; then
+            echo "❌ ERROR: Image output is empty or not set!"
+            exit 1
+          else
+            echo "✅ SUCCESS: Image output is properly set"
+          fi
     
   deploy:
-    needs: build-and-push
-    # runs-on: ubuntu-latest # Verwijderd: Een job met 'uses' mag geen 'runs-on' hebben.
+    needs: [build-and-push, debug-outputs]
     # Deploy ALTIJD als de build succesvol was.
     if: needs.build-and-push.result == 'success'
     uses: ./.github/workflows/deploy.yml
