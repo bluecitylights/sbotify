@@ -58,9 +58,29 @@ jobs:
           IMAGE_URL="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
           
           echo "🐳 Building image: $IMAGE_URL"
+          echo "📁 Build context: . (repository root)"
+          echo "🐋 Dockerfile: ${{ inputs.dockerfile }}"
+          echo "🏷️ Service: ${{ inputs.service }}"
           
-          # Build and push the image
-          docker build -f ${{ inputs.dockerfile }} -t "$IMAGE_URL" ${{ inputs.folder }}
+          # Debug: List contents of build context (repository root)
+          echo "📋 Contents of repository root:"
+          ls -la .
+          
+          # Debug: Check if the service directory exists
+          if [ ! -d "${{ inputs.service }}" ]; then
+            echo "❌ ERROR: Service directory '${{ inputs.service }}' not found in repository root"
+            echo "Available directories:"
+            find . -maxdepth 1 -type d
+            exit 1
+          fi
+          
+          # Build and push the image with build arg, using . as context
+          docker build \
+            -f "${{ inputs.dockerfile }}" \
+            -t "$IMAGE_URL" \
+            --build-arg SERVICE_DIR="${{ inputs.service }}" \
+            .
+          
           docker push "$IMAGE_URL"
           
           # Set the output so other jobs can use it
