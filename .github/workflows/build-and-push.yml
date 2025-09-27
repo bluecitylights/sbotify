@@ -1,4 +1,4 @@
-name: Build and Push (Debug Version)
+name: Build and Push
 
 on:
   workflow_call:
@@ -26,13 +26,13 @@ on:
     outputs:
       image:
         description: "The full image URL that was built and pushed"
-        value: ${{ jobs.build-and-push.outputs.image }}
+        value: ${{ jobs.build.outputs.image }}
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
     outputs:
-      image: ${{ steps.output-step.outputs.image }}
+      image: ${{ steps.build.outputs.image }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -52,13 +52,12 @@ jobs:
         run: gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev
         
       - name: Build and push Docker image
+        id: build
         run: |
-          # Build the full image URL
           IMAGE_URL="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
           
           echo "🐳 Building image: $IMAGE_URL"
           
-          # Build and push the image with build arg, using . as context
           docker build \
             -f "${{ inputs.dockerfile }}" \
             -t "$IMAGE_URL" \
@@ -67,51 +66,5 @@ jobs:
           
           docker push "$IMAGE_URL"
           
-          # Store in environment for next step
-          echo "FINAL_IMAGE_URL=$IMAGE_URL" >> "$GITHUB_ENV"
+          echo "image=$IMAGE_URL" >> $GITHUB_OUTPUT
           echo "✅ Image built and pushed: $IMAGE_URL"
-          
-      - name: Set job output
-        id: output-step
-        run: |
-          echo "🔧 Setting job output with: $FINAL_IMAGE_URL"
-          
-          # Set output using environment variable
-          echo "image=$FINAL_IMAGE_URL" >> "$GITHUB_OUTPUT"
-          
-          # Debug: Check what was written
-          echo "🐛 DEBUG: Contents of GITHUB_OUTPUT:"
-          cat "$GITHUB_OUTPUT"
-          
-          # Verify environment variable
-          echo "🔍 Environment variable FINAL_IMAGE_URL = $FINAL_IMAGE_URL"
-          
-      - name: Debug step outputs immediately
-        run: |
-          echo "🔍 DEBUG: Immediate step output test:"
-          echo "steps.output-step.outputs.image = '${{ steps.output-step.outputs.image }}'"
-          
-          if [ -z "${{ steps.output-step.outputs.image }}" ]; then
-            echo "❌ ERROR: Step output not accessible immediately!"
-          else
-            echo "✅ SUCCESS: Step output accessible: ${{ steps.output-step.outputs.image }}"
-          fi
-          
-  # Add a separate job to test if job outputs work
-  test-job-outputs:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Test job outputs within same workflow
-        run: |
-          echo "🧪 INTERNAL TEST: Testing job outputs within reusable workflow:"
-          echo "needs.build-and-push.outputs.image = '${{ needs.build-and-push.outputs.image }}'"
-          
-          if [ -z "${{ needs.build-and-push.outputs.image }}" ]; then
-            echo "❌ ERROR: Job outputs not working within reusable workflow!"
-            echo "🔍 Let's see what the job actually produced:"
-            echo "Raw job outputs: ${{ toJSON(needs.build-and-push.outputs) }}"
-          else
-            echo "✅ SUCCESS: Job outputs work within reusable workflow"
-            echo "Image URL: ${{ needs.build-and-push.outputs.image }}"
-          fi
