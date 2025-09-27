@@ -19,10 +19,6 @@ on:
       folder:
         required: true
         type: string
-      # 💡 Toegevoegd voor robuustheid: Ref naam is vaak nodig voor checks of logica.
-      ref_name: 
-        required: true
-        type: string
     secrets:
       WORKLOAD_IDENTITY_PROVIDER:
         required: true
