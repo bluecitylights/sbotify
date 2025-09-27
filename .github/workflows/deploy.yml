@@ -67,8 +67,6 @@ jobs:
             )
           fi
 
-          # Gebruik "${common_flags[@]}" om de array-elementen correct uit te vouwen naar afzonderlijke argumenten.
-          gcloud run deploy ${{ secrets.APP }}-${{ inputs.service }} \
-            --image=${{ inputs.image }} \
-            --region=${{ secrets.REGION }} \
-            "${common_flags[@]}"
+          # 💡 NIEUWE FIX: Verwijder de line breaks (\) in het gcloud commando en zet alles op één logische regel.
+          # Dit voorkomt dat de shell de eerste argumenten verkeerd interpreteert.
+          gcloud run deploy ${{ secrets.APP }}-${{ inputs.service }} --image=${{ inputs.image }} --region=${{ secrets.REGION }} "${common_flags[@]}"
