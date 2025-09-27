@@ -18,6 +18,9 @@ on:
       folder:
         required: true
         type: string
+      ref_name: # 💡 NIEUW: Accepteer de branch-naam van de aanroepende workflow.
+        required: true
+        type: string
     # 💡 FIX 1: De base workflow moet de complete set van secrets accepteren.
     secrets:
       WORKLOAD_IDENTITY_PROVIDER:
@@ -57,11 +60,10 @@ jobs:
       GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       REGION: ${{ secrets.REGION }}
       APP: ${{ secrets.APP }}
-  
   deploy:
     needs: build-and-push
-    # Draai de deploy alleen als de build succesvol was (niet overgeslagen)
-    if: always() && needs.build-and-push.result == 'success'
+    # 💡 GEFIXT: De 'deploy' job wordt nu uitgevoerd op ELKE branch, zolang de build succesvol was.
+    if: needs.build-and-push.result == 'success'
     # De permissions zijn nu op workflow-niveau gedefinieerd (FIX 6), dus deze kunnen weg.
     uses: ./.github/workflows/deploy.yml
     with:
