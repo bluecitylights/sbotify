@@ -56,10 +56,9 @@ jobs:
             common_flags+=" --update-env-vars=CHAT_API_URL=https://${{ secrets.APP }}-chat-${{ secrets.PROJECT_NUMBER }}.${{ secrets.REGION }}.run.app"
           fi
 
-          # Geef de SERVICE en IMAGE nu expliciet door. De aanhalingstekens rond "$common_flags" 
-          # zijn cruciaal om het als één set argumenten door te geven, maar door de single-line
-          # definitie zijn de spaties binnen de variabele nu gegarandeerd.
+          # CRUCIALE FIX: De variabele "$common_flags" MOET tussen dubbele aanhalingstekens staan 
+          # om te voorkomen dat de shell de URL's splitst op de punt (.) in de domeinnaam.
           gcloud run deploy ${{ secrets.APP }}-${{ inputs.service }} \
             --image=${{ inputs.image }} \
             --region=${{ secrets.REGION }} \
-            $common_flags
+            "$common_flags"
