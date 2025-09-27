@@ -5,7 +5,7 @@ name: CI/CD Base Workflow
 permissions:
   contents: read
   id-token: write
-  packages: write # 💡 FIX: Toegevoegd om Docker-images naar Artifact Registry te pushen in de 'build-and-push' workflow.
+  packages: write # FIX: Toegevoegd om Docker-images naar Artifact Registry te pushen.
 
 on:
   workflow_call:
@@ -19,6 +19,7 @@ on:
       folder:
         required: true
         type: string
+      # 💡 VERWIJDERD: 'ref_name' op verzoek van de gebruiker.
     secrets:
       WORKLOAD_IDENTITY_PROVIDER:
         required: true
@@ -58,8 +59,8 @@ jobs:
     
   deploy:
     needs: build-and-push
-    # runs-on: ubuntu-latest # 💡 FIX: Verwijderd. Een job met 'uses' mag geen 'runs-on' hebben.
-    # Deploy ALTIJD als de build succesvol was, ongeacht de branch (zoals gevraagd).
+    # runs-on: ubuntu-latest # Verwijderd: Een job met 'uses' mag geen 'runs-on' hebben.
+    # Deploy ALTIJD als de build succesvol was.
     if: needs.build-and-push.result == 'success'
     uses: ./.github/workflows/deploy.yml
     with:
