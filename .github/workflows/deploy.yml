@@ -40,9 +40,9 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
       - name: Deploy to Cloud Run
         run: |
-          # 💡 FIX: De vlaggen worden nu als één robuuste string gedefinieerd om shell-expansie fouten te voorkomen.
-          # We geven de --image vlag expliciet door in het gcloud commando (niet in common_flags).
-          common_flags="--max-instances=1 --platform=managed --service-account=${{ secrets.APP }}-${{ inputs.service }}-user@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com --no-allow-unauthenticated --ingress=internal"
+          # 💡 CRUCIALE FIX: Gebruik spaties in plaats van gelijktekens voor vlag-waardeparen (--vlag WAARDE).
+          # Dit voorkomt dat de shell spaties verliest bij het parseren van de variabele.
+          common_flags="--max-instances 1 --platform managed --service-account=${{ secrets.APP }}-${{ inputs.service }}-user@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com --no-allow-unauthenticated --ingress internal"
 
           if [ "${{ inputs.service }}" == "chat" ]; then
             # GEMINI_API_KEY wordt toegevoegd als omgevingsvariabele
@@ -56,8 +56,8 @@ jobs:
             common_flags+=" --update-env-vars=CHAT_API_URL=https://${{ secrets.APP }}-chat-${{ secrets.PROJECT_NUMBER }}.${{ secrets.REGION }}.run.app"
           fi
 
-          # CRUCIALE FIX: De variabele "$common_flags" MOET tussen dubbele aanhalingstekens staan 
-          # om te voorkomen dat de shell de URL's splitst op de punt (.) in de domeinnaam.
+          # De variabele "$common_flags" staat nog steeds tussen dubbele aanhalingstekens, 
+          # wat essentieel is voor URL's.
           gcloud run deploy ${{ secrets.APP }}-${{ inputs.service }} \
             --image=${{ inputs.image }} \
             --region=${{ secrets.REGION }} \
