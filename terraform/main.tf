@@ -1,3 +1,4 @@
+# Configureer Google Provider
 terraform {
   required_providers {
     google = {
@@ -7,193 +8,91 @@ terraform {
   }
 }
 
-# Variables
-variable "project_id" {
-  description = "The GCP project ID"
-  type        = string
+provider "google" {
+  project = var.gcp_project_id
 }
 
-variable "region" {
-  description = "The GCP region"
-  type        = string
-  default     = "europe-west4"
+# ----------------------------------------------------
+# 1. CI/CD SERVICE ACCOUNT (De Robot)
+# ----------------------------------------------------
+resource "google_service_account" "github_sa" {
+  project      = var.gcp_project_id
+  account_id   = "github-ci-cd-runner"
+  display_name = "Service Account for GitHub Actions CI/CD"
 }
 
-variable "image_tag" {
-  description = "The image tag to use for deployments"
-  type        = string
-  default     = "latest"
+
+# ----------------------------------------------------
+# 2. WORKLOAD IDENTITY FEDERATION SETUP
+# ----------------------------------------------------
+# A. De Pool (Container voor identiteiten)
+resource "google_iam_workload_identity_pool" "github_pool" {
+  project                   = var.gcp_project_id
+  workload_identity_pool_id = "github-ci-pool" # <-- Aangepaste, unieke ID om 409 te vermijden
+  display_name              = "GitHub OIDC Pool"
+  description               = "Pool voor het vertrouwen van GitHub Actions OIDC tokens."
+  disabled                  = false
 }
 
-# Use existing service accounts (no creation needed)
-data "google_service_account" "chat" {
-  account_id = "sbotify-chat-user"
-  project    = var.project_id
-}
-
-data "google_service_account" "dashboard" {
-  account_id = "sbotify-dashboard-user"
-  project    = var.project_id
-}
-
-data "google_service_account" "mcp_server" {
-  account_id = "sbotify-mcp-server-user"
-  project    = var.project_id
-}
-
-# VPC Connector
-data "google_vpc_access_connector" "sbotify_connector" {
-  name    = "sbotify-connector"
-  region  = var.region
-  project = var.project_id
-}
-
-# Cloud Run Services
-resource "google_cloud_run_service" "chat" {
-  name     = "sbotify-chat"
-  location = var.region
-  project  = var.project_id
-
-  template {
-    metadata {
-      annotations = {
-        "autoscaling.knative.dev/maxScale"        = "1"
-        "run.googleapis.com/vpc-access-connector" = data.google_vpc_access_connector.sbotify_connector.id
-        "run.googleapis.com/vpc-access-egress"    = "all-traffic"
-      }
-    }
-
-    spec {
-      service_account_name = data.google_service_account.chat.email
-      containers {
-        image = "europe-west4-docker.pkg.dev/${var.project_id}/sbotify/chat:${var.image_tag}"
-        ports {
-          container_port = 8080
-        }
-        env {
-          name  = "MCP_SERVER_URL"
-          value = google_cloud_run_service.mcp_server.status[0].url
-        }
-        # Keep existing GEMINI_API_KEY from Secret Manager (handled by your current setup)
-        resources {
-          limits = {
-            cpu    = "1000m"
-            memory = "512Mi"
-          }
-        }
-      }
-    }
+# B. De Provider (De Brug naar GitHub)
+resource "google_iam_workload_identity_pool_provider" "github_provider" {
+  project                            = var.gcp_project_id
+  workload_identity_pool_id          = google_iam_workload_identity_pool.github_pool.workload_identity_pool_id
+  workload_identity_pool_provider_id = "github-ci-cd" 
+  display_name                       = "GitHub CI/CD Provider"
+  description                        = "OIDC-provider voor GitHub."
+  oidc {
+    issuer_uri = "https://token.actions.githubusercontent.com"
   }
-
-  metadata {
-    annotations = {
-      "run.googleapis.com/ingress" = "internal"
-    }
+  # FIX 1: Attribute mapping is nu verplicht voor OIDC-providers.
+  attribute_mapping = {
+    "google.subject"       = "assertion.sub"
+    "attribute.repository" = "assertion.repository"
   }
+  # FIX 2: Wanneer je een custom mapping gebruikt, is een 'attribute_condition' vereist.
+  # Deze conditie is voldoende om de API tevreden te stellen.
+  attribute_condition = "assertion.sub != ''"
 }
 
-resource "google_cloud_run_service" "dashboard" {
-  name     = "sbotify-dashboard"
-  location = var.region
-  project  = var.project_id
-
-  template {
-    metadata {
-      annotations = {
-        "autoscaling.knative.dev/maxScale"        = "1"
-        "run.googleapis.com/vpc-access-connector" = data.google_vpc_access_connector.sbotify_connector.id
-        "run.googleapis.com/vpc-access-egress"    = "all-traffic"
-      }
-    }
-
-    spec {
-      service_account_name = data.google_service_account.dashboard.email
-      containers {
-        image = "europe-west4-docker.pkg.dev/${var.project_id}/sbotify/dashboard:${var.image_tag}"
-        ports {
-          container_port = 8080
-        }
-        env {
-          name  = "CHAT_API_URL"
-          value = google_cloud_run_service.chat.status[0].url
-        }
-        resources {
-          limits = {
-            cpu    = "1000m"
-            memory = "512Mi"
-          }
-        }
-      }
-    }
-  }
-
-  metadata {
-    annotations = {
-      "run.googleapis.com/ingress" = "internal"
-    }
-  }
+# ----------------------------------------------------
+# 3. IAM BINDING (De Fix voor de 403 Fout)
+# ----------------------------------------------------
+# Deze binding geeft de GitHub Repository Principal het recht om de SA te impersoneren.
+resource "google_service_account_iam_member" "token_creator_binding" {
+  service_account_id = google_service_account.github_sa.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  
+  # DEFINITIEVE FIX: Filter op de custom claim 'attribute.repository' (de org/repo naam) 
+  # met een schuine streep als scheidingsteken.
+  member = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_pool.name}/attribute.repository/${var.github_org_repo}"
 }
 
-resource "google_cloud_run_service" "mcp_server" {
-  name     = "sbotify-mcp-server"
-  location = var.region
-  project  = var.project_id
-
-  template {
-    metadata {
-      annotations = {
-        "autoscaling.knative.dev/maxScale"        = "1"
-        "run.googleapis.com/vpc-access-connector" = data.google_vpc_access_connector.sbotify_connector.id
-        "run.googleapis.com/vpc-access-egress"    = "all-traffic"
-      }
-    }
-
-    spec {
-      service_account_name = data.google_service_account.mcp_server.email
-      containers {
-        image = "europe-west4-docker.pkg.dev/${var.project_id}/sbotify/mcp-server:${var.image_tag}"
-        ports {
-          container_port = 8080
-        }
-        resources {
-          limits = {
-            cpu    = "1000m"
-            memory = "512Mi"
-          }
-        }
-      }
-    }
-  }
-
-  metadata {
-    annotations = {
-      "run.googleapis.com/ingress" = "internal"
-    }
-  }
+# ----------------------------------------------------
+# 4. ESSENTIËLE SERVICE ROLLEN (Rechten om te werken)
+# ----------------------------------------------------
+# De Service Account moet ook de rollen krijgen om Artifacts te pushen en Cloud Run services te deployen.
+resource "google_project_iam_member" "artifact_registry_writer" {
+  project = var.gcp_project_id
+  role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${google_service_account.github_sa.email}"
 }
 
-# Outputs (match the service names used in substitutions)
-output "chat_url" {
-  value = google_cloud_run_service.chat.status[0].url
+resource "google_project_iam_member" "cloud_run_admin" {
+  project = var.gcp_project_id
+  role    = "roles/run.admin"
+  member  = "serviceAccount:${google_service_account.github_sa.email}"
 }
 
-output "dashboard_url" {
-  value = google_cloud_run_service.dashboard.status[0].url
+# ----------------------------------------------------
+# 5. UITGANGEN (Inputs voor GitHub Secrets)
+# ----------------------------------------------------
+output "service_account_email" {
+  description = "De e-mail van de Service Account om te impersoneren."
+  value       = google_service_account.github_sa.email
 }
 
-output "mcp_server_url" {
-  value = google_cloud_run_service.mcp_server.status[0].url
-}
-
-# Alternative output names to match _SERVICE variable
-output "chat" {
-  value = google_cloud_run_service.chat.status[0].url
-}
-
-output "dashboard" {
-  value = google_cloud_run_service.dashboard.status[0].url
-}
-
-output "mcp-server" {
-  value = google_cloud_run_service.mcp_server.status[0].url
+output "workload_identity_provider" {
+  description = "De volledige resource naam van de WIF Provider voor de 'audience' in GitHub Actions."
+  # Geeft de resource naam terug, die nodig is voor de GitHub Action.
+  value = google_iam_workload_identity_pool_provider.github_provider.name
 }

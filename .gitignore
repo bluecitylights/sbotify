@@ -205,3 +205,24 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Geregistreerde uitvoeringsplannen
+*.tfplan
+
+*.tfstate
+terraform/*.tfstate.backup 
+
+# Lokale cache en gedownloade providers
+.terraform/
+
+# Crash log files
+crash.log
+
+# Overige gevoelige bestanden
+*.tfvars.json
+override.tf
+override.tfjson
+*_override.tf
+*_override.tfjson
+.terraformrc
+terraform.rc

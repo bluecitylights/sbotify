@@ -1,0 +1,70 @@
+name: CI/CD Base Workflow
+
+# 💡 FIX 6: Voeg permissions toe aan het workflow-niveau, zodat alle downstream jobs 
+# het OIDC-token voor Workload Identity kunnen genereren.
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+      dockerfile:
+        required: true
+        type: string
+      folder:
+        required: true
+        type: string
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      SERVICE_ACCOUNT_EMAIL:
+        required: true
+      GCP_PROJECT:
+        required: true
+      REGION:
+        required: true
+      APP:
+        required: true
+      PROJECT_NUMBER:
+        required: true
+      GEMINI_API_KEY:
+        required: false # Optioneel voor niet-chat services
+
+jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml
+    with:
+      folder: ${{ inputs.folder }}
+
+  build-and-push:
+    needs: tests
+    uses: ./.github/workflows/build-and-push.yml
+    with:
+      service: ${{ inputs.service }}
+      dockerfile: ${{ inputs.dockerfile }}
+      folder: ${{ inputs.folder }}
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+      REGION: ${{ secrets.REGION }}
+      APP: ${{ secrets.APP }}
+
+  deploy:
+    needs: build-and-push
+    if: needs.build-and-push.result == 'success'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      service: ${{ inputs.service }}
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+      REGION: ${{ secrets.REGION }}
+      APP: ${{ secrets.APP }}
+      PROJECT_NUMBER: ${{ secrets.PROJECT_NUMBER }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

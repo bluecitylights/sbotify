@@ -1,0 +1,50 @@
+name: Chat CI/CD
+
+on:
+  pull_request:
+    paths:
+      - "chat/**"
+      - ".github/workflows/chat-ci-cd.yml"
+  push:
+    branches: ['*']
+    paths:
+      - "chat/**"
+      - ".github/workflows/chat-ci-cd.yml"
+
+jobs:
+  debug-output:
+    needs: check-changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print folder-changed
+        run: echo "folder-changed = ${{ needs.check-changes.outputs.folder-changed }}"
+  check-changes:
+    uses: ./.github/workflows/check-changes.yml
+    with:
+      folder: chat
+
+  call-base:
+    needs: check-changes
+    if: needs.check-changes.outputs.folder-changed == 'true'
+    uses: ./.github/workflows/workflow-base.yml
+    with:
+      service: chat
+      dockerfile: chat/Dockerfile
+      folder: chat
+    # FIX: Voeg de benodigde OIDC-permissies toe aan de aanroepende job.
+    permissions:
+      id-token: write
+      contents: read
+      packages: write # CRUCIAAL: Nodig om de Docker image te pushen
+
+    
+    # Zorg ervoor dat SECRETS: perfect uitgelijnd is met USES: en WITH:
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+      SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+      REGION: ${{ secrets.REGION }}
+      APP: ${{ secrets.APP }}
+      PROJECT_NUMBER: ${{ secrets.PROJECT_NUMBER }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+

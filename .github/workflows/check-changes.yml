@@ -1,0 +1,38 @@
+name: Check Changes
+
+on:
+  workflow_call:
+    inputs:
+      folder:
+        required: true
+        type: string
+    outputs:
+      folder-changed:
+        description: "Whether the folder or root changed"
+        value: ${{ jobs.check-changes.outputs.folder-changed }}
+
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      folder-changed: ${{ steps.check.outputs.folder_changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 👈 Important: fetch full history
+
+      - name: Check for folder or root changes
+        id: check
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }} HEAD)
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
+          echo "Changed files: $CHANGED_FILES"
+
+          if echo "$CHANGED_FILES" | grep -qE "^${{ inputs.folder }}/|^[^/]+$"; then
+            echo "folder_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "folder_changed=false" >> $GITHUB_OUTPUT
+          fi

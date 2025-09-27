@@ -1,0 +1,62 @@
+name: Build and Push
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+      dockerfile:
+        required: true
+        type: string
+      folder:
+        required: true
+        type: string
+    secrets:
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      SERVICE_ACCOUNT_EMAIL:
+        required: true
+      GCP_PROJECT:
+        required: true
+      REGION:
+        required: true
+      APP:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+          
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev
+        
+      - name: Build and push Docker image
+        run: |
+          IMAGE_URL="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
+          
+          echo "Building image: $IMAGE_URL"
+          
+          docker build \
+            -f "${{ inputs.dockerfile }}" \
+            -t "$IMAGE_URL" \
+            --build-arg SERVICE_DIR="${{ inputs.service }}" \
+            .
+          
+          docker push "$IMAGE_URL"
+          
+          echo "Image built and pushed: $IMAGE_URL"
