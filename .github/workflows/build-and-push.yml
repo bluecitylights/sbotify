@@ -90,3 +90,13 @@ jobs:
           # Debug: Verify the output was set
           echo "🐛 DEBUG: GITHUB_OUTPUT contents:"
           cat "$GITHUB_OUTPUT"
+          
+      - name: Debug step outputs
+        run: |
+          echo "🔍 DEBUG: Step outputs verification:"
+          echo "steps.build.outputs.image = '${{ steps.build.outputs.image }}'"
+          if [ -z "${{ steps.build.outputs.image }}" ]; then
+            echo "❌ ERROR: Step output is empty!"
+          else
+            echo "✅ SUCCESS: Step output is set correctly"
+          fi
