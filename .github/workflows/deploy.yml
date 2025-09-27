@@ -23,12 +23,11 @@ on:
       PROJECT_NUMBER:
         required: true
       GEMINI_API_KEY:
-        required: false # Vereist: false, want alleen nodig voor de 'chat' service
+        required: false
 
 jobs:
   deploy:
-    # De Deploy job draait alleen op de 'main' branch
-    # qif: github.ref == 'refs/heads/main'
+    # We laten de branch-check weg, aangezien de aanroepende workflow (workflow-base) dit nu regelt.
     runs-on: ubuntu-latest
     steps:
       - id: auth
@@ -61,4 +60,6 @@ jobs:
             common_flags+=" --update-env-vars=CHAT_API_URL=https://${{ secrets.APP }}-chat-${{ secrets.PROJECT_NUMBER }}.${{ secrets.REGION }}.run.app"
           fi
 
-          gcloud run deploy ${{ secrets.APP }}-${{ inputs.service }} $common_flags
+          # 💡 FIX: Gebruik dubbele aanhalingstekens ("$common_flags") om te garanderen dat de shell
+          # alle argumenten als één ononderbroken string doorgeeft, wat de splitsing voorkomt.
+          gcloud run deploy ${{ secrets.APP }}-${{ inputs.service }} "$common_flags"
