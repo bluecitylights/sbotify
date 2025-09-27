@@ -29,6 +29,8 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      packages: write # CRUCIAAL: Nodig om de Docker image te pushen
+
     
     # Zorg ervoor dat SECRETS: perfect uitgelijnd is met USES: en WITH:
     secrets:

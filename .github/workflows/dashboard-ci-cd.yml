@@ -29,6 +29,8 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      packages: write # CRUCIAAL: Nodig om de Docker image te pushen
+
     # FIX: Stuur alle vereiste secrets door naar de base workflow.
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
