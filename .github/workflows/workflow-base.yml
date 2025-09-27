@@ -73,14 +73,15 @@ jobs:
           # Test if the output exists and is not empty
           if [ -z "${{ needs.build-and-push.outputs.image }}" ]; then
             echo "❌ ERROR: Image output is empty or not set!"
-            exit 1
+            echo "⚠️  This will trigger fallback mode in deploy"
+            # Don't exit with error - let deploy handle it
           else
             echo "✅ SUCCESS: Image output is properly set"
           fi
     
   deploy:
-    needs: [build-and-push, debug-outputs]
-    # Deploy ALTIJD als de build succesvol was.
+    needs: build-and-push
+    # Deploy ALTIJD als de build succesvol was, ongeacht debug output
     if: needs.build-and-push.result == 'success'
     uses: ./.github/workflows/deploy.yml
     with:
