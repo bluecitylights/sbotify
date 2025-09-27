@@ -4,3 +4,13 @@ version = "0.1.0"
 dependencies = [
     "fastmcp",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-mock",
+    "pytest-asyncio"
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
