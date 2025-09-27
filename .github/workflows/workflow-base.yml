@@ -54,35 +54,12 @@ jobs:
       REGION: ${{ secrets.REGION }}
       APP: ${{ secrets.APP }}
 
-  # Add a debug job to see what outputs we're getting
-  debug-outputs:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Debug build-and-push outputs
-        run: |
-          echo "🐛 DEBUG: build-and-push job outputs:"
-          echo "needs.build-and-push.outputs.image = '${{ needs.build-and-push.outputs.image }}'"
-          echo "needs.build-and-push.result = '${{ needs.build-and-push.result }}'"
-          echo "🔍 All outputs from build-and-push:"
-          echo '${{ toJSON(needs.build-and-push.outputs) }}'
-          
-          # Test if the output exists and is not empty
-          if [ -z "${{ needs.build-and-push.outputs.image }}" ]; then
-            echo "❌ ERROR: Image output is empty or not set!"
-            echo "⚠️  This will trigger fallback mode in deploy"
-            # Don't exit with error - let deploy handle it
-          else
-            echo "✅ SUCCESS: Image output is properly set"
-          fi
-    
   deploy:
     needs: build-and-push
     if: needs.build-and-push.result == 'success'
     uses: ./.github/workflows/deploy.yml
     with:
       service: ${{ inputs.service }}
-      image: ${{ needs.build-and-push.outputs.image }} 
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
       SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
