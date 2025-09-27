@@ -27,7 +27,6 @@ on:
 
 jobs:
   deploy:
-    # We laten de branch-check weg, aangezien de aanroepende workflow (workflow-base) dit nu regelt.
     runs-on: ubuntu-latest
     steps:
       - id: auth
@@ -41,10 +40,10 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
       - name: Deploy to Cloud Run
         run: |
-          # De secrets zijn nu correct beschikbaar
+          # 💡 FIX 1: We verwijderen de --region vlag uit common_flags omdat we deze 
+          # expliciet buiten de variabele gaan toevoegen.
           common_flags="--image=${{ inputs.image }} \
             --max-instances=1 \
-            --region=${{ secrets.REGION }} \
             --platform=managed \
             --service-account=${{ secrets.APP }}-${{ inputs.service }}-user@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com \
             --no-allow-unauthenticated \
@@ -60,6 +59,8 @@ jobs:
             common_flags+=" --update-env-vars=CHAT_API_URL=https://${{ secrets.APP }}-chat-${{ secrets.PROJECT_NUMBER }}.${{ secrets.REGION }}.run.app"
           fi
 
-          # 💡 FIX: Gebruik dubbele aanhalingstekens ("$common_flags") om te garanderen dat de shell
-          # alle argumenten als één ononderbroken string doorgeeft, wat de splitsing voorkomt.
-          gcloud run deploy ${{ secrets.APP }}-${{ inputs.service }} "$common_flags"
+          # 💡 FIX 2: De verplichte --region vlag expliciet en direct toevoegen.
+          # Dit garandeert dat de region altijd wordt doorgegeven.
+          gcloud run deploy ${{ secrets.APP }}-${{ inputs.service }} \
+            --region=${{ secrets.REGION }} \
+            "$common_flags"
