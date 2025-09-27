@@ -1,4 +1,4 @@
-name: Build and Push
+name: Build and Push Docker Image
 
 on:
   workflow_call:
@@ -9,7 +9,9 @@ on:
       dockerfile:
         required: true
         type: string
-    # 💡 FIX: Voeg het secrets blok toe om de geheimen van de aanroepende workflow te accepteren.
+      folder: # 💡 FIX: De ontbrekende 'folder' input is hier toegevoegd.
+        required: true
+        type: string
     secrets:
       WORKLOAD_IDENTITY_PROVIDER:
         required: true
@@ -21,53 +23,55 @@ on:
         required: true
       APP:
         required: true
-        
     outputs:
       image:
-        description: "Full image URL created during the build and push."
-        value: ${{ jobs.build-and-push.outputs.image }}
+        description: "The full URI of the pushed Docker image."
+        value: ${{ jobs.build-push.outputs.IMAGE_URI }}
 
 jobs:
-  build-and-push:
-    # VEILIGHEIDSFIX: Staat de job toe om te draaien op directe pushes OF interne Pull Requests,
-    # zodat de GitHub secrets beschikbaar zijn.
-    if: success() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+  build-push:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+      packages: write
+      id-token: write # Voor Workload Identity
     outputs:
-      image: ${{ steps.build.outputs.image }}
+      IMAGE_URI: ${{ steps.set-image-uri.outputs.IMAGE_URI }}
       
     steps:
-      - uses: actions/checkout@v4
-      
-      # De Debug Security Check stap is verwijderd.
-      
-      - name: Authenticate to GCP using Workload Identity
-        id: auth
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - id: auth
+        name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          # De secrets zijn nu beschikbaar omdat ze in het workflow_call blok zijn gedefinieerd.
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
-          
-      - name: Set up gcloud
+
+      - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
-          
-      - name: Build and Push Docker Image
-        id: build
+
+      - name: Configure Docker to use gcloud as a credential helper
+        run: gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev
+
+      - id: set-image-uri
+        name: Define Image URI
         run: |
-          echo "Building image for service: ${{ inputs.service }}"
-          
-          IMAGE="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
-          
-          # Configureer Docker voor Artifact Registry
-          gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev
-          
-          # Bouw en Push
-          docker build -t $IMAGE -f ${{ inputs.dockerfile }} .
-          docker push $IMAGE
-          
-          # Stuur de uiteindelijke image URL terug als output
-          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+          IMAGE_URI="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_OUTPUT
+        # De IMAGE_URI output wordt gebruikt in de 'outputs' sectie van de job.
+        # 💡 FIX: De ongeldige 'outputs' definitie in de stap is verwijderd.
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+            --platform linux/amd64 \
+            -t ${{ steps.set-image-uri.outputs.IMAGE_URI }} \
+            -f ${{ inputs.dockerfile }} \
+            ${{ inputs.folder }} # Gebruik de 'folder' input als build context
+      
+      - name: Push Docker Image to Artifact Registry
+        run: docker push ${{ steps.set-image-uri.outputs.IMAGE_URI }}

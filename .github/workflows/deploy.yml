@@ -40,10 +40,8 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
       - name: Deploy to Cloud Run
         run: |
-          # 💡 FIX 1: We verwijderen de --region vlag uit common_flags omdat we deze 
-          # expliciet buiten de variabele gaan toevoegen.
-          common_flags="--image=${{ inputs.image }} \
-            --max-instances=1 \
+          # 💡 FIX: Verwijder --image uit common_flags. We geven deze direct door.
+          common_flags="--max-instances=1 \
             --platform=managed \
             --service-account=${{ secrets.APP }}-${{ inputs.service }}-user@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com \
             --no-allow-unauthenticated \
@@ -59,8 +57,8 @@ jobs:
             common_flags+=" --update-env-vars=CHAT_API_URL=https://${{ secrets.APP }}-chat-${{ secrets.PROJECT_NUMBER }}.${{ secrets.REGION }}.run.app"
           fi
 
-          # 💡 FIX 2: De verplichte --region vlag expliciet en direct toevoegen.
-          # Dit garandeert dat de region altijd wordt doorgegeven.
+          # Geef de SERVICE en IMAGE nu expliciet door om parsingfouten te voorkomen.
           gcloud run deploy ${{ secrets.APP }}-${{ inputs.service }} \
+            --image=${{ inputs.image }} \
             --region=${{ secrets.REGION }} \
             "$common_flags"

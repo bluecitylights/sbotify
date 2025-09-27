@@ -1,4 +1,4 @@
-name: CI/CD Base
+name: CI/CD Base Workflow
 
 # 💡 FIX 6: Voeg permissions toe aan het workflow-niveau, zodat alle downstream jobs 
 # het OIDC-token voor Workload Identity kunnen genereren.
@@ -32,7 +32,7 @@ on:
       PROJECT_NUMBER:
         required: true
       GEMINI_API_KEY:
-        required: false
+        required: false # Optioneel voor niet-chat services
 
 jobs:
   tests:
@@ -46,19 +46,25 @@ jobs:
     with:
       service: ${{ inputs.service }}
       dockerfile: ${{ inputs.dockerfile }}
+      # 💡 FIX: De 'folder' input is nodig voor de build context.
+      folder: ${{ inputs.folder }}
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
       SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
       GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       REGION: ${{ secrets.REGION }}
       APP: ${{ secrets.APP }}
+    
   deploy:
     needs: build-and-push
+    # runs-on: ubuntu-latest # 💡 FIX: Verwijderd. Een job met 'uses' mag geen 'runs-on' hebben.
+    # Deploy ALTIJD als de build succesvol was, ongeacht de branch (zoals gevraagd).
     if: needs.build-and-push.result == 'success'
     uses: ./.github/workflows/deploy.yml
     with:
       service: ${{ inputs.service }}
-      image: ${{ needs.build-and-push.outputs.image }}
+      # 💡 FIX: De image naam wordt nu correct opgehaald uit de output van de vorige job
+      image: ${{ needs.build-and-push.outputs.image }} 
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
       SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
