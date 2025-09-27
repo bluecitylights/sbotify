@@ -9,7 +9,6 @@ on:
       image:
         required: true
         type: string
-    # 💡 FIX: Alle gebruikte secrets moeten nu expliciet worden geaccepteerd.
     secrets:
       WORKLOAD_IDENTITY_PROVIDER:
         required: true
@@ -21,7 +20,6 @@ on:
         required: true
       APP:
         required: true
-      # Essentieel voor de 'chat' en 'dashboard' omgevingsvariabelen
       PROJECT_NUMBER:
         required: true
       GEMINI_API_KEY:
@@ -30,7 +28,7 @@ on:
 jobs:
   deploy:
     # De Deploy job draait alleen op de 'main' branch
-    # if: github.ref == 'refs/heads/main'
+    # qif: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - id: auth
