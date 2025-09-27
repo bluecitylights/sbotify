@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Push
 
 on:
   workflow_call:
@@ -9,7 +9,7 @@ on:
       dockerfile:
         required: true
         type: string
-      folder: # 💡 FIX: De ontbrekende 'folder' input is hier toegevoegd.
+      folder:
         required: true
         type: string
     secrets:
@@ -25,52 +25,44 @@ on:
         required: true
     outputs:
       image:
-        description: "The full URI of the pushed Docker image."
-        value: ${{ jobs.build-push.outputs.IMAGE_URI }}
+        description: "The full image URL that was built and pushed"
+        value: ${{ jobs.build-and-push.outputs.image }}
 
 jobs:
-  build-push:
+  build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      id-token: write # Voor Workload Identity
     outputs:
-      IMAGE_URI: ${{ steps.set-image-uri.outputs.IMAGE_URI }}
-      
+      image: ${{ steps.build.outputs.image }}
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
-
+        
       - id: auth
-        name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
-
-      - name: Set up gcloud CLI
+          
+      - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
-
-      - name: Configure Docker to use gcloud as a credential helper
+          
+      - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev
-
-      - id: set-image-uri
-        name: Define Image URI
+        
+      - name: Build and push Docker image
+        id: build
         run: |
-          IMAGE_URI="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
-          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_OUTPUT
-        # De IMAGE_URI output wordt gebruikt in de 'outputs' sectie van de job.
-        # 💡 FIX: De ongeldige 'outputs' definitie in de stap is verwijderd.
-
-      - name: Build Docker Image
-        run: |
-          docker build \
-            --platform linux/amd64 \
-            -t ${{ steps.set-image-uri.outputs.IMAGE_URI }} \
-            -f ${{ inputs.dockerfile }} \
-            .
-      - name: Push Docker Image to Artifact Registry
-        run: docker push ${{ steps.set-image-uri.outputs.IMAGE_URI }}
+          # Build the full image URL
+          IMAGE_URL="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
+          
+          echo "🐳 Building image: $IMAGE_URL"
+          
+          # Build and push the image
+          docker build -f ${{ inputs.dockerfile }} -t "$IMAGE_URL" ${{ inputs.folder }}
+          docker push "$IMAGE_URL"
+          
+          # Set the output so other jobs can use it
+          echo "image=$IMAGE_URL" >> $GITHUB_OUTPUT
+          echo "✅ Image built and pushed: $IMAGE_URL"

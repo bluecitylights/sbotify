@@ -40,8 +40,19 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
       - name: Deploy to Cloud Run
         run: |
+          # Debug: Print the image input to verify it's being passed correctly
+          echo "🐛 DEBUG: Received image input: '${{ inputs.image }}'"
+          
+          # Verify the image input is not empty
+          if [ -z "${{ inputs.image }}" ]; then
+            echo "❌ ERROR: Image input is empty!"
+            exit 1
+          fi
+          
           # Define the service name
           SERVICE_NAME="${{ secrets.APP }}-${{ inputs.service }}"
+          echo "🚀 Deploying service: $SERVICE_NAME"
+          echo "🐳 Using image: ${{ inputs.image }}"
           
           # Initialize array with flags only (not the service name)
           deploy_flags=(
@@ -68,5 +79,9 @@ jobs:
             )
           fi
 
+          # Debug: Show the complete command that will be executed
+          echo "📋 Complete gcloud command will be:"
+          echo "gcloud run deploy $SERVICE_NAME ${deploy_flags[*]}"
+          
           # Deploy with service name as separate argument
           gcloud run deploy "$SERVICE_NAME" "${deploy_flags[@]}"
