@@ -32,7 +32,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      image: ${{ steps.build.outputs.image }}
+      image: ${{ steps.set-output.outputs.image }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -52,27 +52,11 @@ jobs:
         run: gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev
         
       - name: Build and push Docker image
-        id: build
         run: |
           # Build the full image URL
           IMAGE_URL="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.APP }}/${{ inputs.service }}:${{ github.sha }}"
           
           echo "🐳 Building image: $IMAGE_URL"
-          echo "📁 Build context: . (repository root)"
-          echo "🐋 Dockerfile: ${{ inputs.dockerfile }}"
-          echo "🏷️ Service: ${{ inputs.service }}"
-          
-          # Debug: List contents of build context (repository root)
-          echo "📋 Contents of repository root:"
-          ls -la .
-          
-          # Debug: Check if the service directory exists
-          if [ ! -d "${{ inputs.service }}" ]; then
-            echo "❌ ERROR: Service directory '${{ inputs.service }}' not found in repository root"
-            echo "Available directories:"
-            find . -maxdepth 1 -type d
-            exit 1
-          fi
           
           # Build and push the image with build arg, using . as context
           docker build \
@@ -83,28 +67,21 @@ jobs:
           
           docker push "$IMAGE_URL"
           
-          # Set output using multiple methods to ensure it works
-          echo "image=$IMAGE_URL" >> "$GITHUB_OUTPUT"
-          echo "::set-output name=image::$IMAGE_URL"  # Fallback for older runners
-          
+          # Store in environment file for next step
+          echo "BUILT_IMAGE_URL=$IMAGE_URL" >> "$GITHUB_ENV"
           echo "✅ Image built and pushed: $IMAGE_URL"
           
-          # Store in environment for next step
-          echo "BUILT_IMAGE=$IMAGE_URL" >> "$GITHUB_ENV"
-          
-      - name: Verify and set output
-        id: verify
+      - name: Set output
+        id: set-output
         run: |
-          # Get image URL from environment or previous step
-          IMAGE_URL="${BUILT_IMAGE:-${{ steps.build.outputs.image }}}"
+          echo "🔧 Setting output with image URL: $BUILT_IMAGE_URL"
           
-          echo "🔍 DEBUG: Verifying image URL: '$IMAGE_URL'"
+          # Set the output
+          echo "image=$BUILT_IMAGE_URL" >> "$GITHUB_OUTPUT"
           
-          if [ -z "$IMAGE_URL" ]; then
-            echo "❌ ERROR: No image URL found!"
-            exit 1
-          fi
+          # Verify it was set
+          echo "🐛 DEBUG: GITHUB_OUTPUT contents:"
+          cat "$GITHUB_OUTPUT"
           
-          # Set output again as backup
-          echo "image=$IMAGE_URL" >> "$GITHUB_OUTPUT"
-          echo "✅ Output verified and set: $IMAGE_URL"
+          # Also echo for logs
+          echo "✅ Output set: image=$BUILT_IMAGE_URL"
