@@ -40,11 +40,18 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT }}
       - name: Deploy to Cloud Run
         run: |
-          # 💡 DEFENITIEVE FIX: Gebruik een shell ARRAY om te garanderen dat elke vlag als een afzonderlijk argument wordt doorgegeven.
-          # Dit is de meest robuuste manier om shell-expansie fouten met spaties en URL's te voorkomen.
+          # 💡 LAATSTE FIX: Voeg ALLE vlaggen, inclusief de servicenaam, IMAGE en REGION, toe aan de shell ARRAY.
+          # Dit is de meest robuuste manier om 100% te garanderen dat de argumenten correct worden geparsed door gcloud.
           
-          # Definieer de basisvlaggen als een array. We gebruiken nu weer '=' omdat de elementen in de array gescheiden blijven.
+          # Initialiseer de array met de verplichte argumenten en vlaggen:
           common_flags=(
+            # 1. Service Name (Het eerste argument van gcloud run deploy)
+            "${{ secrets.APP }}-${{ inputs.service }}"
+            # 2. Image
+            "--image=${{ inputs.image }}"
+            # 3. Region
+            "--region=${{ secrets.REGION }}"
+            # 4. Overige standaardvlaggen
             "--max-instances=1" 
             "--platform=managed" 
             "--service-account=${{ secrets.APP }}-${{ inputs.service }}-user@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com" 
@@ -67,6 +74,6 @@ jobs:
             )
           fi
 
-          # 💡 NIEUWE FIX: Verwijder de line breaks (\) in het gcloud commando en zet alles op één logische regel.
-          # Dit voorkomt dat de shell de eerste argumenten verkeerd interpreteert.
-          gcloud run deploy ${{ secrets.APP }}-${{ inputs.service }} --image=${{ inputs.image }} --region=${{ secrets.REGION }} "${common_flags[@]}"
+          # Roep gcloud aan met het commando en de volledige array van argumenten.
+          # "${common_flags[@]}" zorgt ervoor dat elk array-element als één apart argument wordt gezien.
+          gcloud run deploy "${common_flags[@]}"
