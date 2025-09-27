@@ -1,4 +1,4 @@
-name: Build and Push
+name: Build and Push (Debug Version)
 
 on:
   workflow_call:
@@ -74,7 +74,7 @@ jobs:
           echo "✅ Image built and pushed: $IMAGE_URL"
           echo "🐛 DEBUG: Output set directly in build step"
           
-      - name: Debug job outputs
+      - name: Debug step outputs
         run: |
           echo "🔍 DEBUG: Testing step output access:"
           echo "steps.build-and-push.outputs.image = '${{ steps.build-and-push.outputs.image }}'"
@@ -84,4 +84,20 @@ jobs:
             echo "❌ ERROR: Cannot access step output!"
           else
             echo "✅ SUCCESS: Step output is accessible: ${{ steps.build-and-push.outputs.image }}"
+          fi
+          
+  # Add a separate job to test if job outputs work
+  test-job-outputs:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test job outputs within same workflow
+        run: |
+          echo "🧪 INTERNAL TEST: Testing job outputs within reusable workflow:"
+          echo "needs.build-and-push.outputs.image = '${{ needs.build-and-push.outputs.image }}'"
+          
+          if [ -z "${{ needs.build-and-push.outputs.image }}" ]; then
+            echo "❌ ERROR: Job outputs not working within reusable workflow!"
+          else
+            echo "✅ SUCCESS: Job outputs work within reusable workflow"
           fi
