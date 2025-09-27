@@ -5,8 +5,7 @@ name: CI/CD Base Workflow
 permissions:
   contents: read
   id-token: write
-  packages: write # FIX: Toegevoegd om Docker-images naar Artifact Registry te pushen.
-
+  packages: write
 on:
   workflow_call:
     inputs:
@@ -19,7 +18,6 @@ on:
       folder:
         required: true
         type: string
-      # 💡 VERWIJDERD: 'ref_name' op verzoek van de gebruiker.
     secrets:
       WORKLOAD_IDENTITY_PROVIDER:
         required: true
@@ -48,7 +46,6 @@ jobs:
     with:
       service: ${{ inputs.service }}
       dockerfile: ${{ inputs.dockerfile }}
-      # 💡 FIX: De 'folder' input is nodig voor de build context.
       folder: ${{ inputs.folder }}
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
@@ -81,12 +78,10 @@ jobs:
     
   deploy:
     needs: build-and-push
-    # Deploy ALTIJD als de build succesvol was, ongeacht debug output
     if: needs.build-and-push.result == 'success'
     uses: ./.github/workflows/deploy.yml
     with:
       service: ${{ inputs.service }}
-      # 💡 FIX: De image naam wordt nu correct opgehaald uit de output van de vorige job
       image: ${{ needs.build-and-push.outputs.image }} 
     secrets:
       WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
