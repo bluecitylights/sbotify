@@ -13,10 +13,11 @@ on:
 
 jobs:
   check-changes:
+    permissions:
+      contents: read
     uses: ./.github/workflows/check-changes.yml
     with:
       folder: mcp-server
-
   call-base:
     needs: check-changes
     if: needs.check-changes.outputs.folder-changed == 'true'
