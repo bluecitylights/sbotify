@@ -19,6 +19,8 @@ jobs:
       - name: Print folder-changed
         run: echo "folder-changed = ${{ needs.check-changes.outputs.folder-changed }}"
   check-changes:
+    permissions:
+      contents: read
     uses: ./.github/workflows/check-changes.yml
     with:
       folder: chat
